@@ -1,0 +1,7 @@
+Border - border dark:border-neutral-300 border-neutral-800 dark:bg-black bg-gray-50 rounded
+Text - font-dosis-regular dark:text-neutral-100 text-neutral-800
+
+
+
+"serve": "vue-cli-service serve"
+"type": "module",

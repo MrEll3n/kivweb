@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    @font-face {
+        font-family: 'Dosis-Regular';
+        src: url('@/assets/fonts/dosis/Dosis-Regular.ttf') format('truetype');
+    }
+    @font-face {
+        font-family: 'Dosis-Bold';
+        src: url('@/assets/fonts/dosis/Dosis-Bold.ttf') format('truetype');
+    }
+    @font-face {
+        font-family: 'Tourney-Regular';
+        src: url('@/assets/fonts/tourney/Tourney-Regular.ttf') format('truetype');
+    }
+    @font-face {
+        font-family: 'Tourney-Bold';
+        src: url('@/assets/fonts/tourney/Tourney-Bold.ttf') format('truetype');
+    }
+    @font-face {
+        font-family: 'Teko-Light';
+        src: url('@/assets/fonts/teko/Teko-Light.ttf') format('truetype');
+    }
+    @font-face {
+        font-family: 'Teko-Medium';
+        src: url('@/assets/fonts/teko/Teko-Medium.ttf') format('truetype');
+    }
+    @font-face {
+        font-family: 'Teko-Regular';
+        src: url('@/assets/fonts/teko/Teko-Regular.ttf') format('truetype');
+    }
+    @font-face {
+        font-family: 'Teko-SemiBold';
+        src: url('@/assets/fonts/teko/Teko-SemiBold.ttf') format('truetype');
+    }
+    @font-face {
+        font-family: 'Teko-Bold';
+        src: url('@/assets/fonts/teko/Teko-Bold.ttf') format('truetype');
+    }
+}
