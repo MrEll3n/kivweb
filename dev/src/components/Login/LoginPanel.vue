@@ -6,6 +6,7 @@ import LoginSubmitInput from "@/components/Inputs/LoginSubmitInput.vue";
 import LoginTextLogo from "@/assets/icons/LegoTextLogo.vue"
 import axios from "axios";
 import {ref} from "vue";
+import router from "@/router";
 
 const user_email = ref("")
 const user_password = ref("")
@@ -26,7 +27,7 @@ function sendPostReq() {
 }).then(response => {
     //console.log(response.data);
     data.value = response.data
-
+    router.push({name: 'Dashboard'})
     
 
 });
@@ -46,7 +47,7 @@ function sendPostReq() {
                 Don't have an account? <router-link to="/register">
                 <span class="font-dosis-bold dark:text-neutral-100 text-neutral-800">Sign In</span>
             </router-link>.</span>
-            <LoginSubmitInput @click="sendPostReq" class="flex items-center mt-10 mx-auto">Log In</LoginSubmitInput>
+            <LoginSubmitInput @clicker="sendPostReq" class="flex items-center mt-10 mx-auto">Log In</LoginSubmitInput>
         </form>
     </div>
 </template>

@@ -1,4 +1,6 @@
 <?php
+require 'sessionMan.php';
+
 define("currentHost", "http://localhost:8080");
 
 header("Access-Control-Allow-Origin: $currentHost");
@@ -32,6 +34,11 @@ try {
     exit();
 }
 
+// Session Manager
+$sessionMan = new SessionMan($pdo);
+
+
+
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $requestUri = $_SERVER["REQUEST_URI"];
 
@@ -53,4 +60,5 @@ switch ($endpoint) {
 }
 
 $pdo = null;
+$sessionMan = null;
 ?>

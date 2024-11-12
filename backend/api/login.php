@@ -1,7 +1,7 @@
 <?php
 switch ($requestMethod) {
     case 'POST':
-        handlePostRequest($pdo);
+        handlePostRequest($pdo, $sessionMan);
         break;
     default:
         echo json_encode([
@@ -11,7 +11,7 @@ switch ($requestMethod) {
         break;
 }
 
-function handlePostRequest($pdo) {
+function handlePostRequest($pdo, $sessionMan) {
     $input = json_decode(file_get_contents("php://input"), true);
 
     $hashed_password = password_hash($input['user_password'], PASSWORD_BCRYPT);
@@ -20,7 +20,7 @@ function handlePostRequest($pdo) {
     //echo json_encode([ "input" => $input, "hash" => $hashed_password]); 
     if (isset($input['user_email']) and isset($input['user_password'])) {
         try {
-            $stmt = $pdo->prepare('SELECT user_email, user_password FROM USER WHERE user_email = :user_email');
+            $stmt = $pdo->prepare('SELECT * FROM USER WHERE user_email = :user_email');
             $stmt->execute(['user_email' => $input['user_email']]);
             $result = $stmt->fetch();
 
@@ -40,15 +40,17 @@ function handlePostRequest($pdo) {
                 exit();
             }
 
+            $sessionMan->createSession($result['user_id']);
+
             echo json_encode([
                 "status" => "200", 
                 "message" => "Login Succesed",
-                "data" => "SESSION_TOKEN"
+                "data" => $sessionMan->getToken($result['user_id'])
             ]);
         } catch (PDOException $e) {
             echo json_encode([
                 "status" => "400", 
-                //"message" => $e->getMessage()
+                "message" => $e->getMessage()
             ]);
         }
     } else {
