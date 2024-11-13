@@ -7,6 +7,7 @@ header("Access-Control-Allow-Origin: $currentHost");
 header("Content-Type: application/json");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Expose-Headers: Access-Token, Uid");
 
 // Database connection settings
 $host = "localhost";
@@ -53,7 +54,9 @@ switch ($endpoint) {
     case 'register':
         include 'register.php';
         break;
-    // Add more cases for different endpoints
+    case 'auth':
+        include 'auth.php';
+        break;
     default:
         echo json_encode(["status" => "error", "message" => "Invalid endpoint"]);
         break;

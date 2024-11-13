@@ -2,6 +2,7 @@
 // Custom Session token manager
 class SessionMan {
     private $pdo = null;
+    private $sessionExpireTime = "+ 3 seconds"; // 15 minutes
 
     // Constructor
     public function __construct($pdo) {
@@ -35,6 +36,8 @@ class SessionMan {
         $stmt->execute(['session_token' => $token]);
         $result = $stmt->fetch();
 
+        //echo $result['session_token'];
+        
         if ($result) {
             return true;
         } else {
@@ -50,11 +53,11 @@ class SessionMan {
         $stmt->execute(['user_id' => $user_id]);
         $result = $stmt->fetch();
 
-        if ($result) {
-            echo "true"; 
+        if ($result || sizeof($result) > 0) {
+            //echo "true"; 
             return true;
         } else {
-            echo "false";
+            //echo "false";
             return false;
         }
     }
@@ -73,7 +76,7 @@ class SessionMan {
         // Create a new DateTime object
         $dateTime = new DateTime();
         // Add 5 minutes
-        $dateTime->modify('+5 minutes');
+        $dateTime->modify($this->sessionExpireTime);
         // Format the DateTime object for MariaDB
         $formattedDateTime = $dateTime->format('Y-m-d H:i:s');
 
@@ -108,19 +111,30 @@ class SessionMan {
 
     // Checks if session is valid
     // $token: token
-    // Returns: boolean
-    public function isSessionValid($token) {
-        $currentDateTime = new DateTime();
+    // Returns: boolean / null (if session does not exist)
+    public function isSessionTimeOut($token) {
+
+        $currentDateTime = new DateTimeImmutable('now');
         $formattedCurrentDateTime = $currentDateTime->format('Y-m-d H:i:s');
 
         $stmt = $this->pdo->prepare('SELECT * FROM SESSIONS WHERE session_token = :session_token');
         $stmt->execute(['session_token' => $token]);
         $result = $stmt->fetch();
-        
-        if ((!$result) or ($result['expires_at'] < $formattedCurrentDateTime)) {
-            return false;
-        } else {
+
+        //echo $token;
+        //echo $result['expires_at'];
+
+        $expireDateTime = new DateTimeImmutable($result['expires_at']);
+        $formattedExpiredDateTime = $expireDateTime->format('Y-m-d H:i:s');
+
+        //echo "ExpiredDateTime: ".$formattedExpiredDateTime;
+
+        //echo "CurrentDateTime: ".$formattedCurrentDateTime;
+
+        if ($currentDateTime > $expireDateTime) {
             return true;
+        } else {
+            return false;
             
         }
     }
