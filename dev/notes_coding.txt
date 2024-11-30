@@ -1,5 +1,6 @@
 Border - border dark:border-neutral-300 border-neutral-800 dark:bg-black bg-gray-50 rounded
 Text - font-dosis-regular dark:text-neutral-100 text-neutral-800
+Outline - focus:box-shadow-none focus:outline focus:outline-1 focus:outline-neutral-900 dark:focus:outline-neutral-100 focus:caret-neutral-800 dark:focus:caret-neutral-100
 
 
 

@@ -1,7 +1,16 @@
 <script setup lang="ts">
     import LoginPanel from "@/components/Login/LoginPanel.vue";
     import ThemeSwitcher from "@/components/ThemeSwitcher/ThemeSwitcher.vue";
+    import router from "@/router";
+
+    import { useAuthStore } from "@/stores/auth.store";
+
     const currentYear = new Date().getFullYear();
+
+    if (localStorage.getItem('isUserLogged') === 'true') {
+        router.go(-1);
+    }
+
 </script>
 
 <template>

@@ -7,7 +7,7 @@
 <template>
     <div class="flex items-center">
         <div>
-            <p class="flex gap-1 font-teko-bold text-3xl dark:text-neutral-100 text-neutral-800 px-2 transition "><slot class="hover:fill-red-500" /></p>
+            <RouterLink :to="`${props.link}`" class="flex gap-1 font-teko-bold text-3xl dark:text-neutral-100 text-neutral-800 px-2 transition "><slot class="hover:fill-red-500" /></RouterLink>
         </div>
     </div>
 </template>

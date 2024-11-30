@@ -2,11 +2,25 @@
 // Custom Session token manager
 class SessionMan {
     private $pdo = null;
-    private $sessionExpireTime = "+ 3 seconds"; // 15 minutes
+        private $sessionExpireTime = "+ 15 minutes"; // 15 minutes
 
     // Constructor
     public function __construct($pdo) {
         $this->pdo = $pdo;
+    }
+
+    // Gives back user_id from database
+    // $token: token
+    // Returns: user_id / null
+    public function getUserId($token) {
+        $stmt = $this->pdo->prepare('SELECT user_id FROM SESSIONS WHERE session_token = :session_token');
+        $stmt->execute(['session_token' => $token]);
+        $result = $stmt->fetch();
+        if (!$result) {
+            return null;
+        } else {
+            return $result['user_id'];
+        }
     }
 
     // Gives back token from database
@@ -48,12 +62,30 @@ class SessionMan {
     // Checks if session exists
     // $token: token
     // Returns: boolean
-    public function checkSession($user_id) {
+    public function checkSessionUserId($user_id) {
         $stmt = $this->pdo->prepare('SELECT * FROM SESSIONS WHERE user_id = :user_id');
         $stmt->execute(['user_id' => $user_id]);
         $result = $stmt->fetch();
 
-        if ($result || sizeof($result) > 0) {
+
+        if ($result && sizeof($result) > 0) {
+            //echo "true"; 
+            return true;
+        } else {
+            //echo "false";
+            return false;
+        }
+    }
+
+    // Checks if session exists
+    // $token: token
+    // Returns: boolean
+    public function checkSessionToken($token) {
+        $stmt = $this->pdo->prepare('SELECT * FROM SESSIONS WHERE session_token = :session_token');
+        $stmt->execute(['session_token' => $token]);
+        $result = $stmt->fetch();
+
+        if ($result && sizeof($result) > 0) {
             //echo "true"; 
             return true;
         } else {
@@ -65,8 +97,8 @@ class SessionMan {
     // Creates session and adds it into database
     // $user_id: user_id
     public function createSession($user_id) {
-        if ($this->checkSession($user_id)) {
-            $this->killSession($user_id);
+        if ($this->checkSessionUserId($user_id)) {
+            $this->killSessionUserId($user_id);
         }
         
         do {
@@ -86,27 +118,26 @@ class SessionMan {
 
     // Deletes session from database
     // $user_id: user_id
-    public function killSession($user_id) {
-        if (!$this->checkSession($user_id)) {
+    public function killSessionUserId($user_id) {
+        if (!$this->checkSessionUserId($user_id)) {
             return;
         }
 
         $stmt = $this->pdo->prepare('DELETE FROM SESSIONS WHERE user_id = :user_id');
         $stmt->execute(['user_id' => $user_id]);
+
     }
 
-    // Gives back user_id from database
-    // $token: token
-    // Returns: user_id / null
-    public function getUserId($token) {
-        $stmt = $this->pdo->prepare('SELECT user_id FROM SESSIONS WHERE session_token = :session_token');
-        $stmt->execute(['session_token' => $token]);
-        $result = $stmt->fetch();
-        if (!$result) {
-            return null;
-        } else {
-            return $result['user_id'];
+    // Deletes session from database
+    // $user_id: user_id
+    public function killSessionToken($token) {
+        if (!$this->checkSessionToken($token)) {
+            return;
         }
+
+        $stmt = $this->pdo->prepare('DELETE FROM SESSIONS WHERE session_token = :session_token');
+        $stmt->execute(['session_token' => $token]);
+
     }
 
     // Checks if session is valid
@@ -138,4 +169,5 @@ class SessionMan {
             
         }
     }
+
 }

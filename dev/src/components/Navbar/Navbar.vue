@@ -1,23 +1,65 @@
 <script setup lang="ts">
     import NavLink from "@/components/Navbar/NavLink.vue";
+    //const NavLink = () => import('@/components/Navbar/NavLink.vue');
     import AccountIcon from "@/assets/icons/account-icon.vue";
+    //const AccountIcon = () => import('@/assets/icons/account-icon.vue');
     import NavTextLogo from "@/components/Navbar/NavTextLogo.vue";
+    //const NavTextLogo = () => import('@/components/Navbar/NavTextLogo.vue');
     import NavLinkBorder from "@/components/Navbar/NavLinkBorder.vue";
+    //const NavLinkBorder = () => import('@/components/Navbar/NavLinkBorder.vue');
     import ThemeSwitcher from "@/components/ThemeSwitcher/ThemeSwitcher.vue";
+    //const ThemeSwitcher = () => import('@/components/ThemeSwitcher/ThemeSwitcher.vue');
+    import Button from "@/components/Inputs/Button.vue";
+    //const Button = () => import('@/components/Inputs/Button.vue');
+    import NavAccountLink from "@/components/Navbar/NavAccountLink.vue";
+    //const NavAccountLink = () => import('@/components/Navbar/NavAccountLink.vue');
+
     import HomeIcon from "@/assets/icons/home-icon.vue";
+    import DashboardIcon from "@/assets/icons/dashboard-icon.vue";
+    import PowerIcon from "@/assets/icons/power-icon.vue";
+    import PlusIcon from "@/assets/icons/plus-icon.vue";
+
     import HamburgerMenuButton from "@/components/HamburgerMenu/HamburgerMenuButton.vue";
     import HamburgerDropdown from "@/components/HamburgerMenu/HamburgerDropdown.vue";
 
     import {ref} from "vue";
+    import { useAuthStore } from "@/stores/auth.store";
+    import { sessionManager, getLoginStatus, isPermStored, isUserStored, getCurrentUser, getCurrentPerm } from "@/utils/utils";
+    import router from "@/router";
+    import { storeCurrentUser, storeCurrentPerm, auth } from "@/utils/rest-api";
+
+    // Setting up the storage
+    const authStore = useAuthStore();
+    const isUserLogged = ref(getLoginStatus());
+
+    if (!isUserStored()) { 
+        storeCurrentUser();
+    }
+
+    if (!isPermStored()) { 
+        storeCurrentPerm();
+    }
+
+    authStore.userData = getCurrentUser();
+    authStore.userPerm = getCurrentPerm();
+
+    console.log("Perms: " + authStore.userPerm);
+    console.log("User: " + authStore.userData);
+
 
     const isDropdownOpen = ref(false);
 
-    const props = defineProps({
-
-    })
+    //const currentUserPerm = await getCurrentUserPerm();
+    const currentUserPerm = 3;
 
     function toggleDropdown() {
         isDropdownOpen.value = !isDropdownOpen.value;
+    }
+
+    async function logout() {
+        await sessionManager().logout();
+        isUserLogged.value = false;
+        router.push({name: 'Login'});
     }
 
 </script>
@@ -30,18 +72,38 @@
             <div class="relative flex flex-row gap-6 h-20 justify-center">
                 <div class="absolute flex flex-row gap-6 h-20 left-0 items-center pl-14" >
                     <NavTextLogo link="/">[CW]</NavTextLogo>
+                    <NavLinkBorder v-if="isUserLogged" link="/newpost">
+                        <plus-icon />
+                    </NavLinkBorder>
                 </div>
                 <div>
-                    <div class="flex flex-row gap-6 h-20">
-
+                    <div v-if="isUserLogged" class="flex flex-row gap-6 h-20">
+                        <NavLink link="/news?page=1">
+                            News
+                        </NavLink>
+                        <NavLink v-if="(currentUserPerm >= 3)" link="/dashboard">
+                            Dashboard
+                        </NavLink>
                     </div>
                 </div>
                 <div class="absolute flex flex-row gap-6 h-20 right-0 pr-14">
-                    <NavLinkBorder link="/login">
+                    <NavLinkBorder v-if="!isUserLogged" link="/login">
                         <account-icon />
                         Log In
                     </NavLinkBorder>
                     <ThemeSwitcher />
+                    <NavAccountLink v-if="isUserLogged" link="/profile">
+                        <template v-slot:Icon><account-icon/></template>
+                        <template v-slot:Name>
+                            <div class="flex flex-col flex-shrink-0 items-center">
+                                <span>{{ authStore.userData?.user_name ?? 'Name' }}</span>
+                                <span class="font-dosis-regular text-sm">{{ authStore.userPerm?.perm_name ?? "Role" }}</span>
+                            </div>
+                        </template>
+                    </NavAccountLink>
+                    <Button v-if="isUserLogged" @click="logout">
+                        <power-icon />
+                    </Button>
                 </div>
             </div>
         </div>
@@ -74,13 +136,23 @@
                     <ThemeSwitcher/>
                 </div>
                 <div class="flex flex-row space-x-6 h-20">
-                    <NavLink link="news">
-                        <home-icon/>
+                    <NavLink v-if="isUserLogged" link="/news?page=1">
+                        <home-icon />
+                    </NavLink>
+                    <NavLinkBorder v-if="isUserLogged" link="/newpost">
+                        <plus-icon />
+                    </NavLinkBorder>
+                    <NavLink v-if="isUserLogged" link="/dashboard">
+                        <dashboard-icon />
                     </NavLink>
                 </div>
                 <div class="absolute flex flex-row space-x-6 h-20 right-0 pr-7">
-                    <NavLinkBorder link="/login">
+                    <NavLink v-if="isUserLogged" link="/profile">
                         <account-icon />
+                    </NavLink>
+                    <NavLinkBorder v-if="!isUserLogged" link="/login">
+                        <account-icon />
+                        Log In
                     </NavLinkBorder>
                 </div>
             </div>

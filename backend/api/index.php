@@ -1,12 +1,19 @@
 <?php
-require 'sessionMan.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-define("currentHost", "http://localhost:8080");
+require '../sessionMan.php';
+require '../utils.php';
 
-header("Access-Control-Allow-Origin: $currentHost");
+define("CURRENT_HOST", 'http://localhost:3000');
+define("BASE_PATH", "/kivweb/backend/api/");
+
+header("Access-Control-Allow-Origin: http://localhost:3000");
 header("Content-Type: application/json");
+header('Access-Control-Allow-Credentials: true');
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-HTTP-Method-Override, Accept");
 header("Access-Control-Expose-Headers: Access-Token, Uid");
 
 // Database connection settings
@@ -38,26 +45,41 @@ try {
 // Session Manager
 $sessionMan = new SessionMan($pdo);
 
-
+[$finalPath, $endpoint, $getQueries] = getApiPath(); 
+//echo $endpoint[1];
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 $requestUri = $_SERVER["REQUEST_URI"];
 
+//echo $finalPath[0];
 // Parse the URL to determine the endpoint
-$endpoint = basename(parse_url($requestUri, PHP_URL_PATH));
+//$endpoint = basename(parse_url($requestUri, PHP_URL_PATH));
 
 // Include the appropriate file based on the endpoint
-switch ($endpoint) {
+switch ($endpoint[0]) {
     case 'login':
-        include 'login.php';
+        require 'login.php';
         break;
     case 'register':
-        include 'register.php';
+        require 'register.php';
         break;
     case 'auth':
-        include 'auth.php';
+        require 'auth.php';
+        break;
+    case 'users':
+        require 'users.php';
+        break;
+    case 'article':
+        require 'article.php';
+        break;
+    case 'token':
+        require 'token.php';
+        break;
+    case 'perms':
+        require 'perms.php';
         break;
     default:
+        http_response_code(400);
         echo json_encode(["status" => "error", "message" => "Invalid endpoint"]);
         break;
 }
