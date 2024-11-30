@@ -8,15 +8,13 @@
 
     import router from "@/router";
     import { ref} from "vue";
-    import { storeCurrentPerm, storeCurrentUser, getArticles } from "@/utils/rest-api";
-    import { getCurrentUser, getCurrentPerm } from "@/utils/utils";
+    import { getArticles } from "@/utils/rest-api";
 
     // TODO: ts-ignore
     //@ts-ignore
     import { useAuthStore } from "@/stores/auth.store";
     import { useArticleStore } from "@/stores/article.store";
     import { useRoute } from "vue-router";
-    import { isUserStored, isPermStored } from "@/utils/utils";
     //const isPermStoredk = () => import('@/utils/utils');
 
     // Setting up the page
@@ -42,11 +40,6 @@
         router.push({name: 'News', query: { page: 1 } });
     };
 
-    //await refreshToken();
-    // Getting the current user data
-    authStore.userData = getCurrentUser();
-    authStore.userPerm = getCurrentPerm();
-    //console.log("Perms: " + authStore.userPerm);
     // Getting the number of articles
     const articles = await getArticles();
     articleStore.count = articles ? articles.length : 0;

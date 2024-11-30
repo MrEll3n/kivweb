@@ -143,19 +143,21 @@ export async function isTokenExpired(): Promise<boolean> {
     return true;
 }
 
-export async function storeCurrentPerm(): Promise<void> {
-    await axios.post(BASE_URL + '/perms', {
+export async function getCurrentPerm(): Promise<Perm|null> {
+    return await axios.post(BASE_URL + '/perms', {
         withCredentials: true,
     }).then(res => {
         if (res.status === 200) {
-            sessionStorage.setItem('userPerm', JSON.stringify(res.data.data));
+            //sessionStorage.setItem('userPerm', JSON.stringify(res.data.data));
             //console.log('Perm store');
             //console.log(res.data.data);
+            return res.data.data;
         }   
     }).catch(err => {
         if (err.response.status === 401) {
             localStorage.setItem('isUserLogged', 'false');
             console.log('Unauthorized');
+            return null
         } else {
             //console.error("An error occurred while loading current user:", error);
             // TODO: Add logout logic
@@ -164,24 +166,26 @@ export async function storeCurrentPerm(): Promise<void> {
             //authStore.authError = true;
             //console.log("Redirecting to login page");
             //router.push({ name: 'Login' });
-            return;
+            return null;
         }
     })
 }
 
-export async function storeCurrentUser(): Promise<void> {
-    await axios.post(BASE_URL + '/users', {
+export async function getCurrentUser(): Promise<UserData|null> {
+    return await axios.post(BASE_URL + '/users', {
         withCredentials: true,
     }).then(res => {
         if (res.status === 200) {
-            sessionStorage.setItem('userData', JSON.stringify(res.data.data));
+            //sessionStorage.setItem('userData', JSON.stringify(res.data.data));
             //console.log('User store');
             //console.log(res.data.data);
-        }   
+            return res.data.data;
+        }
     }).catch(err => {
         if (err.response.status === 401) {
             localStorage.setItem('isUserLogged', 'false');
             console.log('Unauthorized');
+            return null;
         } else {
             //console.error("An error occurred while loading current user:", error);
             // TODO: Add logout logic
@@ -190,11 +194,21 @@ export async function storeCurrentUser(): Promise<void> {
             //authStore.authError = true;
             //console.log("Redirecting to login page");
             //router.push({ name: 'Login' });
-            return;
+            return null;
         }
-    })
+    });
 }
 
+/*
+export function getCurrentUser(): UserData|null {
+    //return sessionStorage.getItem('userData') ? JSON.parse(sessionStorage.getItem('userData') as string) : null;
+
+}
+
+export function getCurrentPerm(): Perm|null {
+    //return sessionStorage.getItem('userPerm') ? JSON.parse(sessionStorage.getItem('userPerm') as string) : null;
+}
+*
 // Function to get user data
 /*
 export async function getCurrentUserPerm(): Promise<void> {

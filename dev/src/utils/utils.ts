@@ -102,10 +102,3 @@ export function getLoginStatus(): boolean {
     return localStorage.getItem('isUserLogged') ? JSON.parse(localStorage.getItem('isUserLogged') as string) : false; 
 }
 
-export function getCurrentUser(): UserData|null {
-    return sessionStorage.getItem('userData') ? JSON.parse(sessionStorage.getItem('userData') as string) : null;
-}
-
-export function getCurrentPerm(): Perm|null {
-    return sessionStorage.getItem('userPerm') ? JSON.parse(sessionStorage.getItem('userPerm') as string) : null;
-}

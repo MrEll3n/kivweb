@@ -24,33 +24,23 @@
 
     import {ref} from "vue";
     import { useAuthStore } from "@/stores/auth.store";
-    import { sessionManager, getLoginStatus, isPermStored, isUserStored, getCurrentUser, getCurrentPerm } from "@/utils/utils";
+    import { sessionManager, getLoginStatus, isPermStored, isUserStored } from "@/utils/utils";
     import router from "@/router";
-    import { storeCurrentUser, storeCurrentPerm, auth } from "@/utils/rest-api";
 
     // Setting up the storage
     const authStore = useAuthStore();
     const isUserLogged = ref(getLoginStatus());
-
-    if (!isUserStored()) { 
-        storeCurrentUser();
-    }
-
-    if (!isPermStored()) { 
-        storeCurrentPerm();
-    }
-
-    authStore.userData = getCurrentUser();
-    authStore.userPerm = getCurrentPerm();
+    const currentUserPermWeight = ref(0);
+    const isDropdownOpen = ref(false);
 
     console.log("Perms: " + authStore.userPerm);
     console.log("User: " + authStore.userData);
 
 
-    const isDropdownOpen = ref(false);
+    currentUserPermWeight.value = authStore.userPerm?.perm_weight ?? 0;
+    
 
     //const currentUserPerm = await getCurrentUserPerm();
-    const currentUserPerm = 3;
 
     function toggleDropdown() {
         isDropdownOpen.value = !isDropdownOpen.value;
@@ -81,7 +71,10 @@
                         <NavLink link="/news?page=1">
                             News
                         </NavLink>
-                        <NavLink v-if="(currentUserPerm >= 3)" link="/dashboard">
+                        <NavLink v-if="(currentUserPermWeight >= 2)" link="/reviews">
+                            Reviews
+                        </NavLink>
+                        <NavLink v-if="(currentUserPermWeight >= 3)" link="/dashboard">
                             Dashboard
                         </NavLink>
                     </div>

@@ -7,6 +7,7 @@ import {
 } from 'vue-router';
 
 import { useAuthStore } from '@/stores/auth.store';
+import { useArticleStore } from '@/stores/article.store';
 
 // @ts-ignore
 import MainView from "../views/MainView.vue";
@@ -25,7 +26,7 @@ import ProfileView from "../views/ProfileView.vue";
 // @ts-ignore
 import NotFoundView from "../views/NotFoundView.vue";
 
-import { getToken, refreshToken } from '@/utils/rest-api';
+import { getCurrentUser, getCurrentPerm, getArticle, getArticles, getToken, refreshToken } from '@/utils/rest-api';
 
 const baseRoute = '/kivweb/frontend/'
 
@@ -116,6 +117,14 @@ router.beforeEach(async (to, from, next) => {
         }
         
         //refreshToken();
+        useAuthStore().userData = await getCurrentUser();
+        useAuthStore().userPerm = await getCurrentPerm();
+        // Getting the number of articles
+        const articles = await getArticles();
+        useArticleStore().count = articles ? articles.length : 0;
+        // Getting the articles
+        useArticleStore().articles = await getArticles(useArticleStore().page);
+        // End of setup
 
         next();
         return

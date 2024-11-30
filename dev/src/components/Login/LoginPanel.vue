@@ -24,7 +24,7 @@
         const result = await login(user_email.value, user_password.value);
         if(result != null) {
             authStore.userData = result;
-            sessionStorage.setItem('userData', JSON.stringify(result));
+            //sessionStorage.setItem('userData', JSON.stringify(result));
             isBadLogin.value = false;
             localStorage.setItem('isUserLogged', 'true');
             router.replace({name: "News", query: {page: 1}});
