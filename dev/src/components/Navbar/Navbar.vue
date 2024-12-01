@@ -33,8 +33,8 @@
     const currentUserPermWeight = ref(0);
     const isDropdownOpen = ref(false);
 
-    console.log("Perms: " + authStore.userPerm);
-    console.log("User: " + authStore.userData);
+    //console.log("Perms: " + authStore.userPerm);
+    //console.log("User: " + authStore.userData);
 
 
     currentUserPermWeight.value = authStore.userPerm?.perm_weight ?? 0;
@@ -74,7 +74,10 @@
                         <NavLink v-if="(currentUserPermWeight >= 2)" link="/reviews">
                             Reviews
                         </NavLink>
-                        <NavLink v-if="(currentUserPermWeight >= 3)" link="/dashboard">
+                        <NavLink v-if="(currentUserPermWeight >= 3)" link="/moderation">
+                            Moderation
+                        </NavLink>
+                        <NavLink v-if="(currentUserPermWeight >= 4)" link="/dashboard">
                             Dashboard
                         </NavLink>
                     </div>

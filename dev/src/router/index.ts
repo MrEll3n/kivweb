@@ -25,6 +25,13 @@ import ArticleView from "../views/ArticleView.vue";
 import ProfileView from "../views/ProfileView.vue";
 // @ts-ignore
 import NotFoundView from "../views/NotFoundView.vue";
+// @ts-ignore
+import ForbiddenView from "../views/ForbiddenView.vue";
+// @ts-ignore
+import ReviewsView from "../views/ReviewsView.vue";
+// @ts-ignore
+import ModerationView from "../views/ModerationView.vue";
+
 
 import { getCurrentUser, getCurrentPerm, getArticle, getArticles, getToken, refreshToken } from '@/utils/rest-api';
 
@@ -87,6 +94,21 @@ const routes = [
         component: ProfileView,
     },
     {
+        path: '/reviews',
+        name: "Reviews",
+        component: ReviewsView,
+    },
+    {
+        path: '/moderation',
+        name: "Moderation",
+        component: ModerationView,
+    },
+    {
+        path: '/forbidden',
+        name: "Forbidden",
+        component: ForbiddenView,
+    },
+    {
         path: '/:catchAll(.*)*',
         component: NotFoundView,
     }
@@ -103,7 +125,7 @@ const router: Router = createRouter({
 
 // Navigation guard - checking for user permissions
 router.beforeEach(async (to, from, next) => {
-    const allowedRoutes = ['Login', 'Register', 'Home', 'News', 'Article', 'NotFound'];
+    const allowedRoutes = ['Login', 'Register', 'Home', 'News', 'Article', 'NotFound', 'Forbidden'];
 
     // Check if the user is logged in
     const isUserLogged = localStorage.getItem('isUserLogged') ? (localStorage.getItem('isUserLogged') == 'true') : false;
@@ -119,6 +141,19 @@ router.beforeEach(async (to, from, next) => {
         //refreshToken();
         useAuthStore().userData = await getCurrentUser();
         useAuthStore().userPerm = await getCurrentPerm();
+        //console.log(useAuthStore().getDissallowedRoutes);
+        //console.log(to.name);
+        //console.log(useAuthStore().getDissallowedRoutes.includes(to.name as string));
+
+
+        if (useAuthStore().getDissallowedRoutes.includes(to.name as string)) {
+            router.replace({ name: 'Forbidden' });
+            return;
+        }
+
+        //if (userAuthStore().userPerm)
+
+
         // Getting the number of articles
         const articles = await getArticles();
         useArticleStore().count = articles ? articles.length : 0;
