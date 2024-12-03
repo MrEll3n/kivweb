@@ -1,12 +1,9 @@
 <script setup lang="ts">
     import Navbar from "@/components/Navbar/Navbar.vue";
     import Footer from "@/components/Footer/Footer.vue"
-    import DashboardContent from "@/components/DashboardContent.vue";
+    import ModerationContent from "@/components/ModerationContent.vue";
 
     import { ref } from "vue";
-    import { useAuthStore } from "@/stores/auth.store";
-    import { useArticleStore } from "@/stores/article.store";
-
 
     
     const isUserLogged = localStorage.getItem('isUserLogged') ? ref(localStorage.getItem('isUserLogged') === 'true') : ref(false);
@@ -17,7 +14,7 @@
 <template>
     <div class="flex flex-col items-center dark:bg-black bg-gray-50">
         <Navbar :is-user-logged="false"/>
-        <DashboardContent />
+        <ModerationContent />
         <Footer />
     </div>
 </template>

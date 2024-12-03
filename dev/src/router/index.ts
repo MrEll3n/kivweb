@@ -31,6 +31,8 @@ import ForbiddenView from "../views/ForbiddenView.vue";
 import ReviewsView from "../views/ReviewsView.vue";
 // @ts-ignore
 import ModerationView from "../views/ModerationView.vue";
+// @ts-ignore
+import ArticleReviewView from "../views/ArticleReviewView.vue";
 
 
 import { getCurrentUser, getCurrentPerm, getArticle, getArticles, getToken, refreshToken } from '@/utils/rest-api';
@@ -50,6 +52,23 @@ const routes = [
         path: '/news',
         name: 'News',
         component: MainView,
+        beforeEnter: (to: any, from: any, next: any) => {
+            // Check if the query parameter is missing
+            if (!to.query.page) {
+            // Redirect with default query parameter
+                next({
+                    path: to.path,
+                    query: { ...to.query, page: 1 },
+                });
+            } else {
+                next();
+            }
+        },
+    },
+    {
+        path: '/reviews',
+        name: 'Reviews',
+        component: ReviewsView,
         beforeEnter: (to: any, from: any, next: any) => {
             // Check if the query parameter is missing
             if (!to.query.page) {
@@ -94,9 +113,9 @@ const routes = [
         component: ProfileView,
     },
     {
-        path: '/reviews',
-        name: "Reviews",
-        component: ReviewsView,
+        path: '/reviews/:id',
+        //name: "ReviewsView",
+        component: ArticleReviewView,
     },
     {
         path: '/moderation',
@@ -128,7 +147,7 @@ router.beforeEach(async (to, from, next) => {
     const allowedRoutes = ['Login', 'Register', 'Home', 'News', 'Article', 'NotFound', 'Forbidden'];
 
     // Check if the user is logged in
-    const isUserLogged = localStorage.getItem('isUserLogged') ? (localStorage.getItem('isUserLogged') == 'true') : false;
+    const isUserLogged = localStorage.getItem('isUserLogged') === 'true';
     if (isUserLogged) { 
         const token = await getToken();
         if (token == null) { 
@@ -137,22 +156,16 @@ router.beforeEach(async (to, from, next) => {
             router.push({ name: 'Login' });
             return;
         }
-        
         //refreshToken();
         useAuthStore().userData = await getCurrentUser();
         useAuthStore().userPerm = await getCurrentPerm();
-        //console.log(useAuthStore().getDissallowedRoutes);
-        //console.log(to.name);
-        //console.log(useAuthStore().getDissallowedRoutes.includes(to.name as string));
 
 
         if (useAuthStore().getDissallowedRoutes.includes(to.name as string)) {
-            router.replace({ name: 'Forbidden' });
+            //router.push({ name: 'Home' });
+            router.go(-1);
             return;
         }
-
-        //if (userAuthStore().userPerm)
-
 
         // Getting the number of articles
         const articles = await getArticles();
@@ -160,7 +173,6 @@ router.beforeEach(async (to, from, next) => {
         // Getting the articles
         useArticleStore().articles = await getArticles(useArticleStore().page);
         // End of setup
-
         next();
         return
     }
@@ -169,18 +181,12 @@ router.beforeEach(async (to, from, next) => {
     if (allowedRoutes.includes(to.name as string)) { 
         next(); 
         return;
+    } else {
+        // Redirect to login page
+        //router.push({ name: 'Home' });
+        router.go(-1);
+        return;
     }
-
-    // Check if the user has a valid token
-
-
-    //useAuthStore().userData = await getCurrentUser();
-    //useAuthStore().userPerm = await getCurrentUserPerm();
-
-    //console.log(useAuthStore().userData);
-
-
-    
     next();
 });
 

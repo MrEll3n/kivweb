@@ -78,6 +78,9 @@ switch ($endpoint[0]) {
     case 'perms':
         require 'perms.php';
         break;
+    case 'review':
+        require 'review.php';
+        break;
     default:
         http_response_code(400);
         echo json_encode(["status" => "error", "message" => "Invalid endpoint"]);

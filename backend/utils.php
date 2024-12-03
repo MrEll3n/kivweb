@@ -1,5 +1,7 @@
 <?php
 
+//require_once 'path/to/SessionManager.php'; // Replace 'path/to/SessionManager.php' with the actual file path
+
 // Return: the fullUri: string and the endpoint: array
 function getApiPath(): array {
     // Get the request URI
@@ -41,11 +43,48 @@ function getApiPath(): array {
     return [];
 }
 
+function checkPermissions() {
+    if (!isset($_COOKIE['Authorization'])) {
+        return false;
+    }
+    return true;    
+}
+
+/*
+function getPermissions() {
+    if (!checkCookieToken()) {
+        return null;
+    }
+    $sessionMan = new SessionManager();
+
+    $untrimmedToken = $_COOKIE['Authorization'];
+    $token = trimToken($untrimmedToken);
+    $token = $_COOKIE['Authorization'];
+
+    if(!$sessionMan->checkToken($token)) {
+        return null;
+    }
+
+    if (!$sessionMan->checkSessionToken($token)) {
+        return null;
+    }
+
+    $userId = $sessionMan->getUserId($token);
+    
+    $info = array();
+    $res = http_get("http://localhost:8080/kivweb/backend/api/index.php/users/"."$userId"."/perm_id", array("Cookie" => "Authorization"), $info);
+    echo $info['response_code'];
+
+}
+*/
+
 function checkCookieToken() {
     if (!isset($_COOKIE['Authorization'])) {
         return false;
     }
     return true;
+
+
 }
 
 function trimToken($untrimmedToken) {

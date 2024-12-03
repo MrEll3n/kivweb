@@ -17,7 +17,7 @@
 <template>
     <div class="flex flex-col items-center dark:bg-black bg-gray-50">
         <Navbar :is-user-logged="false"/>
-        <ProfileContent />
+            <ProfileContent />
         <Footer />
     </div>
 </template>

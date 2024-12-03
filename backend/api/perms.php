@@ -159,7 +159,7 @@ function handlePOSTRequest($pdo, $sessionMan, $endpoint) {
         $result2 = $stmt2->fetch();
 
         http_response_code(200);
-        echo json_encode(["data" => $result2]);
+        echo json_encode($result2);
         exit();
         
     } catch (PDOException $e) {

@@ -71,10 +71,10 @@
                         <NavLink link="/news?page=1">
                             News
                         </NavLink>
-                        <NavLink v-if="(currentUserPermWeight >= 2)" link="/reviews">
+                        <NavLink v-if="(currentUserPermWeight >= 2)" link="/reviews?page=1">
                             Reviews
                         </NavLink>
-                        <NavLink v-if="(currentUserPermWeight >= 3)" link="/moderation">
+                        <NavLink v-if="(currentUserPermWeight >= 3)" link="/moderation?page=1">
                             Moderation
                         </NavLink>
                         <NavLink v-if="(currentUserPermWeight >= 4)" link="/dashboard">

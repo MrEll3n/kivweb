@@ -2,13 +2,18 @@
     import ChevronRight from "@/assets/icons/chevron-right.vue";
     import ChevronLeft from "@/assets/icons/chevron-left.vue";
     import { useArticleStore } from "@/stores/article.store";
-    import { getArticles } from "@/utils/rest-api";
+    import { getArticles, getReviews } from "@/utils/rest-api";
     import router from "@/router";
     // TODO: ts-ignore
     //@ts-ignore
-    import { Article } from "@/types"
+    import { Review } from "@/types"
     import { useRoute } from "vue-router";
     import { computed } from "vue";
+import { useReviewStore } from "@/stores/review.store";
+
+    const props = defineProps<{
+        link: string
+    }>();
 
     const articleStore = useArticleStore();
     const route = useRoute();
@@ -17,28 +22,28 @@
 
     async function nextPage() {
         if (route.query.page &&
-            Math.floor(articleStore.count/articleStore.numberOfContentInPage) >= articleStore.page
+            Math.floor(useReviewStore().count/useReviewStore().numberOfContentInPage) >= useReviewStore().page
         ) {
-            articleStore.page = Number(qPage.value);
+            useReviewStore().page = Number(qPage.value);
 
-            articleStore.page++;
-            router.push({ path: '/news', query: { page: articleStore.page as number} });
+            useReviewStore().page++;
+            router.push({ path: props.link, query: { page: useReviewStore().page as number} });
 
-            articleStore.articles = await getArticles(articleStore.page) as Article[] | null;
+            useReviewStore().reviews = await getReviews(useReviewStore().page) as Review[] | null;
         }
     }
 
     async function previousPage() {
         if (route.query.page &&
-            articleStore.page > 1
+            useArticleStore().page > 1
         ) {
-            articleStore.page = Number(qPage.value);
+            useArticleStore().page = Number(qPage.value);
             //console.log(articleStore.page);
 
-            articleStore.page--;
-            router.push({ path: '/news', query: { page: articleStore.page as number} });
+            useReviewStore().page--;
+            router.push({ path: props.link, query: { page: articleStore.page as number} });
 
-            articleStore.articles = await getArticles(articleStore.page) as Article[] | null;
+            useReviewStore().reviews = await getArticles(articleStore.page) as Review[] | null;
         }
 
     }

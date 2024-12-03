@@ -1,5 +1,5 @@
 const router = () => import('@/router');
-import { type UserData, type Article, type Perm } from '@/types';
+import { type UserData, type Article, type Perm, type Review } from '@/types';
 import axios from 'axios';
 
 const BASE_URL = 'http://localhost:8080/kivweb/backend/api/index.php';
@@ -14,8 +14,8 @@ export async function login(user_email: string, user_password: string): Promise<
         if (res.status === 200) {
             //console.log("Login successful");
             localStorage.setItem('isUserLogged', 'true');
-            console.log(res.data.data);
-            return res.data.data;
+            console.log(res.data);
+            return res.data;
         } else {
             //console.log("Invalid credentials");
             return null;
@@ -26,16 +26,41 @@ export async function login(user_email: string, user_password: string): Promise<
     }
 }
 
-export async function getArticle(id?: string): Promise<Article | null> {
+export async function submitNewArticle(article_header: string, article_content: string, article_image: File) {
+    try {
+        const formData = new FormData();
+        formData.append('article_header', article_header); // Append the article header
+        formData.append('article_content', article_content); // Append the article content
+        formData.append('article_image', article_image); // Append the image file
+
+        const res = await axios.post(BASE_URL + '/article', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data' // Set the content type to multipart/form-data
+            },
+            withCredentials: true // Include credentials if needed
+        });
+
+        if (res.status === 200) {
+            return true; // Indicate success
+        }
+    } catch (error) {
+        console.error("An error occurred while submitting new article:", error);
+        return false; // Indicate failure
+    }
+    return false; // Default return value
+}
+
+
+export async function getArticle(accepted: boolean, id?: string): Promise<Article | null> {
     try {
         const res = await axios.get(BASE_URL + '/article', {
             params: {
                 // Add your query parameters heresteam
                 // Example: page: 1, limit: 10
-                ...(id && {
-                    id: id,
-                }), 
-            }
+                ...(id && {id: id,}),
+                accepted: accepted
+            },
+            withCredentials: true
         });
 
         if (res.status === 200) {
@@ -49,9 +74,32 @@ export async function getArticle(id?: string): Promise<Article | null> {
     return null;
 }
 
-export async function getArticles(page?: number): Promise<Article[] | null> {
+export async function getArticles(accepted: boolean, page?: number): Promise<Article[] | null> {
     try {
         const res = await axios.get(BASE_URL + '/article', {
+            params: {
+                // Add your query parameters heresteam
+                // Example: page: 1, limit: 10
+                ...(page && { page: page }),
+                accepted: accepted
+            }
+        });
+
+        if (res.status === 200) {
+            //authStore.isUserLogged = true;
+            return res.data;
+        }  
+
+    } catch (error) {
+        console.log("An error occurred while loading articles:", error);
+        return null;
+    }
+    return null;
+}
+
+export async function getReviews(page?: number): Promise<Review[] | null> {
+    try {
+        const res = await axios.get(BASE_URL + '/review', {
             params: {
                 // Add your query parameters heresteam
                 // Example: page: 1, limit: 10
@@ -151,7 +199,7 @@ export async function getCurrentPerm(): Promise<Perm|null> {
             //sessionStorage.setItem('userPerm', JSON.stringify(res.data.data));
             //console.log('Perm store');
             //console.log(res.data.data);
-            return res.data.data;
+            return res.data;
         }   
     }).catch(err => {
         if (err.response.status === 401) {
@@ -178,8 +226,8 @@ export async function getCurrentUser(): Promise<UserData|null> {
         if (res.status === 200) {
             //sessionStorage.setItem('userData', JSON.stringify(res.data.data));
             //console.log('User store');
-            //console.log(res.data.data);
-            return res.data.data;
+            //console.log(res.data);
+            return res.data;
         }
     }).catch(err => {
         if (err.response.status === 401) {
@@ -199,48 +247,6 @@ export async function getCurrentUser(): Promise<UserData|null> {
     });
 }
 
-/*
-export function getCurrentUser(): UserData|null {
-    //return sessionStorage.getItem('userData') ? JSON.parse(sessionStorage.getItem('userData') as string) : null;
-
-}
-
-export function getCurrentPerm(): Perm|null {
-    //return sessionStorage.getItem('userPerm') ? JSON.parse(sessionStorage.getItem('userPerm') as string) : null;
-}
-*
-// Function to get user data
-/*
-export async function getCurrentUserPerm(): Promise<void> {
-    if (sessionStorage.getItem('userData') == undefined) {
-        console.log('userData not stored in SessionStorage');
-        return;
-    }
-
-    try {
-
-        const res = await axios.get(BASE_URL + '/perms/' + , {
-            withCredentials: true,
-        })
-
-        if (res.status === 200) {
-            //authStore.isUserLogged = true;
-            console.log(res.data);
-            sessionStorage.setItem('userData', res.data);
-        }      
-    } catch (error) {
-        //console.error("An error occurred while loading current user:", error);
-        // TODO: Add logout logic
-        localStorage.setItem('isUserLogged', 'false');
-        //authStore.authError = true;
-        //console.log("Redirecting to login page");
-        //router.push({ name: 'Login' });
-        return;
-    }
-    return;
-}
-*/
-
 // Function to get user data
 export async function getToken(): Promise<string | null> {
     try {
@@ -254,6 +260,34 @@ export async function getToken(): Promise<string | null> {
         return null;
     }
     return null;
+}
+
+// Function to get user data
+export async function acceptReview(article_id: number, review_id: number): Promise<boolean> {
+    const path1 = BASE_URL + '/article/' + article_id + '/update';
+    const path2 = BASE_URL + '/review/' + review_id + '/update';
+
+    //console.log(path);
+    try {
+        const res1 = await axios.post(path1, {
+            accepted: 1,
+        });
+
+        if (res1.status === 200) {
+            const res2 = await axios.post(path2, {
+                finished: 1,
+            });
+
+            if (res2.status === 200) {
+                return true;
+            }
+            return false
+        }
+    } catch (error) {
+        console.error("An error occurred while authenticating user:", error);
+        return false;
+    }
+    return false;
 }
 
 /*

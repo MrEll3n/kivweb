@@ -12,7 +12,6 @@
 
     const authStore = useAuthStore();
 
-
     const user_email = ref<string>("");
     const user_password = ref<string>("");
 

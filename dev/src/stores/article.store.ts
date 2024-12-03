@@ -9,4 +9,9 @@ export const useArticleStore = defineStore('article', {
         numberOfContentInPage: 5, // must be same as in backend
         page: 1 as number,
     }),
+    getters: {
+        getArticlesToReview: (state) => { // Fixed typo in getter name
+            return state.articles?.filter(article => article.accepted === false);
+        }
+    }
 });

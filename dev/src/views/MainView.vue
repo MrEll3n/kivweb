@@ -10,8 +10,6 @@
     import { ref} from "vue";
     import { getArticles } from "@/utils/rest-api";
 
-    // TODO: ts-ignore
-    //@ts-ignore
     import { useAuthStore } from "@/stores/auth.store";
     import { useArticleStore } from "@/stores/article.store";
     import { useRoute } from "vue-router";
@@ -21,10 +19,6 @@
     const authStore = useAuthStore();
     const articleStore = useArticleStore();
     const route = useRoute();
-
-
-
-    
 
     const isUserLogged = localStorage.getItem('isUserLogged') ? ref(localStorage.getItem('isUserLogged') === 'true') : ref(false);
     articleStore.page = route.query.page ? parseInt(route.query.page as string) as number : 1;
@@ -54,7 +48,7 @@
 <template>
     <div class="flex flex-col items-center dark:bg-black bg-gray-50">
         <Suspense>
-            <Navbar />
+            <Navbar :is-user-logged="false" />
         </Suspense>
         <MainContent />
         <Footer />

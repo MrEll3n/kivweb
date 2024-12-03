@@ -37,7 +37,7 @@ function handleGETRequest($pdo, $sessionMan, $endpoint) {
             if (!isset($_GET['page']) && !isset($_GET['size'])) {
                 $result = $pdo->query("SELECT user_id, user_name, user_email, perm_id FROM `USER`")->fetchAll();
                 http_response_code(200);
-                echo json_encode(["data" => $result]);
+                echo json_encode($result);
                 exit();
             }
 
@@ -49,7 +49,7 @@ function handleGETRequest($pdo, $sessionMan, $endpoint) {
                 $stmt->execute(['PAGE' => $PAGE, 'PAGE_OFFSET' => ($PAGE - 1)*$SIZE]);
                 $result = $stmt->fetchAll();
                 http_response_code(200);
-                echo json_encode(["data" => $result]);
+                echo json_encode($result);
                 exit();
             }
 
@@ -112,7 +112,7 @@ function handleGETRequest($pdo, $sessionMan, $endpoint) {
                 $item = 'user_email';
                 break;
             case 'perm':
-                $item = 'user_email';
+                $item = 'perm_id';
                 break;
             default:
                 http_response_code(400);
@@ -276,7 +276,7 @@ function handlePOSTRequest($pdo, $sessionMan, $endpoint) {
         $result = $stmt->fetch();
 
         http_response_code(200);
-        echo json_encode(["data" => $result]);
+        echo json_encode($result);
         exit();
         
     } catch (PDOException $e) {
