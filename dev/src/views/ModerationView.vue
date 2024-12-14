@@ -14,7 +14,9 @@
 <template>
     <div class="flex flex-col items-center dark:bg-black bg-gray-50">
         <Navbar :is-user-logged="false"/>
-        <ModerationContent />
+        <Suspense>
+            <ModerationContent />
+        </Suspense>
         <Footer />
     </div>
 </template>

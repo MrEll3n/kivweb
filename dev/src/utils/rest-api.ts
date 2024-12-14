@@ -51,14 +51,13 @@ export async function submitNewArticle(article_header: string, article_content: 
 }
 
 
-export async function getArticle(accepted: boolean, id?: string): Promise<Article | null> {
+export async function getArticle(id: number): Promise<Article | null> {
     try {
         const res = await axios.get(BASE_URL + '/article', {
             params: {
                 // Add your query parameters heresteam
                 // Example: page: 1, limit: 10
-                ...(id && {id: id,}),
-                accepted: accepted
+                id: id,
             },
             withCredentials: true
         });
@@ -74,14 +73,13 @@ export async function getArticle(accepted: boolean, id?: string): Promise<Articl
     return null;
 }
 
-export async function getArticles(accepted: boolean, page?: number): Promise<Article[] | null> {
+export async function getArticles(page: number): Promise<Article[] | null> {
     try {
         const res = await axios.get(BASE_URL + '/article', {
             params: {
                 // Add your query parameters heresteam
                 // Example: page: 1, limit: 10
-                ...(page && { page: page }),
-                accepted: accepted
+                page: page,
             }
         });
 
@@ -97,6 +95,119 @@ export async function getArticles(accepted: boolean, page?: number): Promise<Art
     return null;
 }
 
+export async function getAllArticles(): Promise<Article[] | null> {
+    try {
+        const res = await axios.get(BASE_URL + '/article', {
+        });
+
+        if (res.status === 200) {
+            //authStore.isUserLogged = true;
+            return res.data;
+        }  
+
+    } catch (error) {
+        console.log("An error occurred while loading articles:", error);
+        return null;
+    }
+    return null;
+}
+
+export async function getAcceptedArticle(id: number): Promise<Article | null> {
+    try {
+        const res = await axios.get(BASE_URL + '/article', {
+            params: {
+                // Add your query parameters heresteam
+                // Example: page: 1, limit: 10
+                id: id,
+                accepted: true
+            },
+            withCredentials: true
+        });
+
+        if (res.status === 200) {
+            //authStore.isUserLogged = true;
+            return res.data;
+        }      
+    } catch (error) {
+        console.log("An error occurred while loading article:", error);
+        return null;
+    }
+    return null;
+}
+
+export async function getAcceptedArticles(page?: number): Promise<Article[] | null> {
+    try {
+        const res = await axios.get(BASE_URL + '/article', {
+            params: {
+                // Add your query parameters heresteam
+                // Example: page: 1, limit: 10
+                ...(page && {
+                    page: page,
+                }),
+                accepted: true
+            },
+            withCredentials: true
+        });
+
+        if (res.status === 200) {
+            //authStore.isUserLogged = true;
+            return res.data;
+        }      
+    } catch (error) {
+        console.log("An error occurred while loading article:", error);
+        return null;
+    }
+    return null;
+}
+
+export async function getReviewedArticle(id: number): Promise<Article | null> {
+    try {
+        const res = await axios.get(BASE_URL + '/article', {
+            params: {
+                // Add your query parameters heresteam
+                // Example: page: 1, limit: 10
+                page: id,
+                accepted: false
+            },
+            withCredentials: true
+        });
+
+        if (res.status === 200) {
+            //authStore.isUserLogged = true;
+            return res.data;
+        }      
+    } catch (error) {
+        console.log("An error occurred while loading article:", error);
+        return null;
+    }
+    return null;
+}
+
+export async function getReviewedArticles(page?: number): Promise<Article[] | null> {
+    try {
+        const res = await axios.get(BASE_URL + '/article', {
+            params: {
+                // Add your query parameters heresteam
+                // Example: page: 1, limit: 10
+                ...(page && {
+                    page: page,
+                }),
+                accepted: false
+            },
+            withCredentials: true
+        });
+
+        if (res.status === 200) {
+            //authStore.isUserLogged = true;
+            return res.data;
+        }      
+    } catch (error) {
+        console.log("An error occurred while loading article:", error);
+        return null;
+    }
+    return null;
+}
+
 export async function getReviews(page?: number): Promise<Review[] | null> {
     try {
         const res = await axios.get(BASE_URL + '/review', {
@@ -107,6 +218,23 @@ export async function getReviews(page?: number): Promise<Review[] | null> {
                     page: page,
                 }),
             }
+        });
+
+        if (res.status === 200) {
+            //authStore.isUserLogged = true;
+            return res.data;
+        }      
+    } catch (error) {
+        console.log("An error occurred while loading articles:", error);
+        return null;
+    }
+    return null;
+}
+
+export async function getAllReviewers(): Promise<Review[] | null> {
+    try {
+        const res = await axios.get(BASE_URL + '/users', {
+
         });
 
         if (res.status === 200) {

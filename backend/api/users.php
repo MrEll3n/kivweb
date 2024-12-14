@@ -1,10 +1,11 @@
 <?php
 
-//header("Access-Control-Allow-Origin: CURRENT_HOST");
-//header("Content-Type: application/json");
-//header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-//header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-//header("Access-Control-Expose-Headers: Access-Token, Uid");
+// Include necessary headers for CORS and JSON content type
+// header("Access-Control-Allow-Origin: CURRENT_HOST");
+// header("Content-Type: application/json");
+// header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+// header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+// header("Access-Control-Expose-Headers: Access-Token, Uid");
 
 require_once "../utils.php";
 
@@ -30,32 +31,30 @@ switch ($requestMethod) {
 }
 
 function handleGETRequest($pdo, $sessionMan, $endpoint) {
-    // If theres no endpoint, return all users
+    // If there's no endpoint, return all users
     if (count($endpoint) == 1) {
         try {
-            // If there is no query
-            if (!isset($_GET['page']) && !isset($_GET['size'])) {
-                $result = $pdo->query("SELECT user_id, user_name, user_email, perm_id FROM `USER`")->fetchAll();
+            // If there are no query parameters
+            if (!isset($_GET['page']) && !isset($_GET['size']) && !isset($_GET['attr'])) {
+                $result = $pdo->query("SELECT user_id, user_name, user_email, perm_id FROM `USER`")->fetchAll(PDO::FETCH_ASSOC);
                 http_response_code(200);
                 echo json_encode($result);
                 exit();
             }
 
-            // If there is a page and size query
+            if (isset($_GET['attr'])) {
+                handleAttrQuery($pdo, $_GET['attr']);
+                exit();
+            }
+
             if (isset($_GET['page']) && isset($_GET['size']) && $_GET['page'] > 0 && $_GET['size'] > 0) {
-                $PAGE = $_GET['page'];
-                $SIZE = $_GET['size'];
-                $stmt = $pdo->prepare("SELECT user_id, user_name, user_email, perm_id FROM `USER` LIMIT :PAGE OFFSET :PAGE_OFFSET"); 
-                $stmt->execute(['PAGE' => $PAGE, 'PAGE_OFFSET' => ($PAGE - 1)*$SIZE]);
-                $result = $stmt->fetchAll();
-                http_response_code(200);
-                echo json_encode($result);
+                handlePagination($pdo, $_GET['page'], $_GET['size']);
                 exit();
             }
 
-            // If there is invalid query
-            if ( (!isset($_GET['page']) && isset($_GET['size'])) || (isset($_GET['page']) && !isset($_GET['size'])) ||
-                ($_GET['page'] <= 0 && $_GET['size'] <= 0) ) {
+            // If there is an invalid query
+            if ((!isset($_GET['page']) && isset($_GET['size'])) || (isset($_GET['page']) && !isset($_GET['size'])) ||
+                ($_GET['page'] <= 0 && $_GET['size'] <= 0)) {
                 http_response_code(400);
                 echo json_encode([
                     "status" => "400", 
@@ -64,81 +63,78 @@ function handleGETRequest($pdo, $sessionMan, $endpoint) {
                 exit();
             }
         } catch (PDOException $e) {
-            http_response_code(400);
-            echo json_encode([
-                "status" => "400",
-                "message" => $e->getMessage()
-            ]);
-            echo 69;
-            exit();
+            handlePDOException($e);
         }
     }
 
-    // if there is an id
     if (count($endpoint) == 2) {
-        $user_id = $endpoint[1];
-
-        try {
-            $stmt = $pdo->prepare("SELECT USER.user_id, USER.user_name, USER.user_email, perm_id FROM `USER` WHERE user_id = :user_id"); 
-            $stmt->execute(['user_id' => $user_id]);
-            $result = $stmt->fetch();
-            http_response_code(200);
-            echo json_encode($result);
-            exit();
-
-        } catch (PDOException $e) {
-            http_response_code(400);
-            echo json_encode([
-                "status" => "400", 
-                "message" => $e->getMessage()
-            ]);
-            echo "92";
-            exit();
-        }
+        handleUserById($pdo, $endpoint[1]);
     }
 
     if (count($endpoint) == 3) {
-        $user_id = $endpoint[1];
-        $item = '';
+        handleUserAttributeById($pdo, $endpoint[1], $endpoint[2]);
+    }
+}
 
-        switch ($endpoint[2]) {
-            case 'user_id':
-                $item = 'user_id';
-                break;
-            case 'user_name':
-                $item = 'user_name';
-                break;
-            case 'user_email':
-                $item = 'user_email';
-                break;
-            case 'perm':
-                $item = 'perm_id';
-                break;
-            default:
-                http_response_code(400);
-                echo json_encode([
-                    "status" => "400", 
-                    "message" => "Invalid selector"
-                ]);
-                exit();
-        }
+function handleAttrQuery($pdo, $ATTR) {
+    $allowedAttributes = ['user_id', 'user_name', 'user_email']; // Add other allowed attributes as needed //TODO: Add other attributes
+    
+    if (in_array($ATTR, $allowedAttributes)) {
+        $stmt = $pdo->prepare("SELECT $ATTR FROM `USER`"); 
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        http_response_code(200);
+        echo json_encode($result);
+    } else {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid attribute']);
+    }
+}
 
-        try {
-            $stmt = $pdo->prepare("SELECT $item FROM USER WHERE user_id = :user_id"); 
-            $stmt->execute(['user_id' => $user_id]);
-            $result = $stmt->fetch();
-            http_response_code(200);
-            echo json_encode($result);
+function handlePagination($pdo, $PAGE, $SIZE) {
+    $offset = ($PAGE - 1) * $SIZE;
+    $stmt = $pdo->prepare("SELECT user_id, user_name, user_email, perm_id FROM `USER` LIMIT :SIZE OFFSET :OFFSET");
+    $stmt->bindParam(':SIZE', $SIZE, PDO::PARAM_INT);
+    $stmt->bindParam(':OFFSET', $offset, PDO::PARAM_INT);
+    $stmt->execute();
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    http_response_code(200);
+    echo json_encode($result);
+}
 
-        } catch (PDOException $e) {
-            http_response_code(400);
-            echo json_encode([
-                "status" => "400", 
-                "message" => $e->getMessage()
-            ]);
-            echo "132";
-        }
-    }   
+function handleUserById($pdo, $user_id) {
+    try {
+        $stmt = $pdo->prepare("SELECT USER.user_id, USER.user_name, USER.user_email, perm_id FROM `USER` WHERE user_id = :user_id"); 
+        $stmt->execute(['user_id' => $user_id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        http_response_code(200);
+        echo json_encode($result);
+    } catch (PDOException $e) {
+        handlePDOException($e);
+    }
+}
+
+function handleUserAttributeById($pdo, $user_id, $item) {
+    $allowedItems = ['user_id', 'user_name', 'user_email', 'perm_id'];
+    
+    if (!in_array($item, $allowedItems)) {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "400", 
+            "message" => "Invalid selector"
+        ]);
+        exit();
+    }
+
+    try {
+        $stmt = $pdo->prepare("SELECT $item FROM USER WHERE user_id = :user_id"); 
+        $stmt->execute(['user_id' => $user_id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        http_response_code(200);
+        echo json_encode($result);
+    } catch (PDOException $e) {
+        handlePDOException($e);
+    }
 }
 
 function handlePUTRequest($pdo, $sessionMan, $endpoint) {
@@ -146,70 +142,69 @@ function handlePUTRequest($pdo, $sessionMan, $endpoint) {
 
     $hashed_password = password_hash($input['user_password'], PASSWORD_BCRYPT);
 
-    //echo json_encode([ "input" => $input, "hash" => $hashed_password]); 
     if (isset($input['user_name']) and isset($input['user_email']) and isset($input['user_password'])) {
         try {
             $is_correct = true;
 
-            // SELECT Query \\
+            // SELECT Query
             $stmt_select = $pdo->prepare('SELECT * FROM USER WHERE user_name = :user_name OR user_email = :user_email');
             $stmt_select->execute(['user_name' => $input['user_name'], 'user_email' => $input['user_email']]);
             $result_select = $stmt_select->fetch();
-            
-            // USER_NAME \\
+
+            // USER_NAME Validation
             if ($input['user_name'] == "") {
                 echo json_encode([
                     "status" => "error", 
                     "message" => "No user_name inserted"
-                ]); 
+                ]);
                 $is_correct = false;
             } else if (strlen($input['user_name']) < 4) {
                 echo json_encode([
                     "status" => "error", 
                     "message" => "Insufficient user_name length"
-                ]); 
+                ]);
                 $is_correct = false;
             } else if ($input['user_name'] == $result_select['user_name']) {
                 echo json_encode([
                     "status" => "error", 
                     "message" => "User_name already taken"
-                ]); 
+                ]);
                 $is_correct = false;
             }
 
-            // USER_EMAIL \\
+            // USER_EMAIL Validation
             if ($input['user_email'] == "") {
                 echo json_encode([
                     "status" => "error", 
                     "message" => "No user_email inserted"
-                ]); 
+                ]);
                 $is_correct = false;
             } else if (strlen($input['user_email']) < 8) {
                 echo json_encode([
                     "status" => "error", 
                     "message" => "Insufficient user_email length"
-                ]); 
+                ]);
                 $is_correct = false;
-            } else if ($input['user_email'] == $result_select['user_name']) {
+            } else if ($input['user_email'] == $result_select['user_email']) {
                 echo json_encode([
                     "status" => "error", 
                     "message" => "User_email already taken"
-                ]); 
+                ]);
                 $is_correct = false;
             }
 
-            // USER_PASSWORD \\
+            // USER_PASSWORD Validation
             if ($input['user_password'] == "") {
                 echo json_encode([
                     "status" => "error", 
                     "message" => "No user_password inserted"
-                ]); 
+                ]);
                 $is_correct = false;
             } else if (strlen($input['user_password']) < 8) {
                 echo json_encode([
                     "status" => "error", 
                     "message" => "Insufficient user_password length"
-                ]); 
+                ]);
                 $is_correct = false;
             }
 
@@ -224,15 +219,12 @@ function handlePUTRequest($pdo, $sessionMan, $endpoint) {
             $stmt->bindParam(':user_password', $hashed_password);
 
             if ($stmt->execute()) {
-                // Get the ID of the newly created user
                 $newUserId = $pdo->lastInsertId();
     
-                // Set the response code and headers
                 http_response_code(201);
                 header("Location: /users/$newUserId");
                 header("Content-Type: application/json");
     
-                // Respond with the new user data
                 echo json_encode([
                     "user_id" => $newUserId,
                     "username" => $input['user_name'],
@@ -246,10 +238,7 @@ function handlePUTRequest($pdo, $sessionMan, $endpoint) {
             }
 
         } catch (PDOException $e) {
-            echo json_encode([
-                "status" => "error", 
-                "message" => $e->getMessage()
-            ]);
+            handlePDOException($e);
         }
     } else {
         echo json_encode([
@@ -270,22 +259,23 @@ function handlePOSTRequest($pdo, $sessionMan, $endpoint) {
         $token = trimToken($untrimmedToken);
         $user_id = $sessionMan->getUserId($token);
         
-        // If there is no query
         $stmt = $pdo->prepare("SELECT USER.user_id, USER.user_name, USER.user_email, perm_id FROM `USER` WHERE user_id = :user_id"); 
         $stmt->execute(['user_id' => $user_id]);
-        $result = $stmt->fetch();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         http_response_code(200);
         echo json_encode($result);
         exit();
         
     } catch (PDOException $e) {
-        http_response_code(400);
-        echo json_encode([
-            "status" => "400",
-            "message" => $e->getMessage()
-        ]);
-        echo 69;
-        exit();
+        handlePDOException($e);
     }
+}
+
+function handlePDOException($e) {
+    http_response_code(400);
+    echo json_encode([
+        "status" => "400",
+        "message" => $e->getMessage()
+    ]);
 }

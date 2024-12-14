@@ -14,14 +14,16 @@
         link: string
     }>();
 
+    const count = defineModel<number>();
+
     const articleStore = useArticleStore();
     const route = useRoute();
 
     const qPage = computed(() => route.query.page)
 
-    async function nextPage() {
+    async function nextPage() {``
         if (route.query.page &&
-            Math.floor(articleStore.count/articleStore.numberOfContentInPage) >= articleStore.page
+            Math.floor(Number(count)/articleStore.numberOfContentInPage) >= articleStore.page
         ) {
             articleStore.page = Number(qPage.value);
 

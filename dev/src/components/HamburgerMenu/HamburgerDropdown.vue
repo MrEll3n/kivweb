@@ -10,10 +10,13 @@ import PlusIcon from "@/assets/icons/plus-icon.vue";
 import Button from "@/components/Inputs/Button.vue";
 import PowerIcon from "@/assets/icons/power-icon.vue";
 import { useAuthStore } from "@/stores/auth.store";
+import { ref } from "vue";
 
 const authStore = useAuthStore();
+const currentUserPermWeight = ref(0);
 
 const isUserLogged = (localStorage.getItem('isUserLogged') === 'true');
+currentUserPermWeight.value = authStore.userPerm?.perm_weight ?? 0;
 
 </script>
 
@@ -27,14 +30,20 @@ const isUserLogged = (localStorage.getItem('isUserLogged') === 'true');
                 <ThemeSwitcher />
             </div>
             <div>
-                <div v-if="isUserLogged" id="NavListLong" class="flex flex-col gap-6 my-6">
-                    <NavLink link="news?page=1">
-                        News
-                    </NavLink>
-                    <NavLink link="dashboard">
-                        Dashboard
-                    </NavLink>
-                </div>
+                <div v-if="isUserLogged" class="flex flex-col gap-6 py-6">
+                        <NavLink link="/news?page=1">
+                            News
+                        </NavLink>
+                        <NavLink v-if="(currentUserPermWeight >= 2)" link="/reviews?page=1">
+                            Reviews
+                        </NavLink>
+                        <NavLink v-if="(currentUserPermWeight >= 3)" link="/moderation?page=1">
+                            Moderation
+                        </NavLink>
+                        <NavLink v-if="(currentUserPermWeight >= 4)" link="/dashboard">
+                            Dashboard
+                        </NavLink>
+                    </div>
                 <div v-if="!isUserLogged" id="NavListLong" class="mx-24">
                     <div class="h-24"></div>
                 </div>

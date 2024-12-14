@@ -17,9 +17,9 @@ import SubmitInput from "@/components/Inputs/SubmitInput.vue";
 import type SelectVue from "@/components/Inputs/SelectInput.vue";
 import Option from "@/components/Inputs/Option.vue";
 import type { Article } from "@/types";
-import { getArticles } from "@/utils/rest-api";
+import { getReviewedArticles } from "@/utils/rest-api";
 
-const articlesToReview = await getArticles(false) ? ref(await getArticles(false)) : ref([]);
+const articlesToReview = await getReviewedArticles() ? ref(await getReviewedArticles()) : ref([]);
 
 </script>
 

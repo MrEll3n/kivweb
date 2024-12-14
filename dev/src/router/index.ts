@@ -35,7 +35,7 @@ import ModerationView from "../views/ModerationView.vue";
 import ArticleReviewView from "../views/ArticleReviewView.vue";
 
 
-import { getCurrentUser, getCurrentPerm, getArticle, getArticles, getToken, refreshToken } from '@/utils/rest-api';
+import { getCurrentUser, getCurrentPerm, getArticle, getArticles, getToken, refreshToken, getAllArticles } from '@/utils/rest-api';
 
 const baseRoute = '/kivweb/frontend/'
 
@@ -168,8 +168,8 @@ router.beforeEach(async (to, from, next) => {
         }
 
         // Getting the number of articles
-        const articles = await getArticles();
-        useArticleStore().count = articles ? articles.length : 0;
+        const articles = await getAllArticles();
+        useArticleStore().countAccepted = articles ? articles.length : 0;
         // Getting the articles
         useArticleStore().articles = await getArticles(useArticleStore().page);
         // End of setup

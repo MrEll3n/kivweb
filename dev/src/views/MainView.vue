@@ -8,7 +8,7 @@
 
     import router from "@/router";
     import { ref} from "vue";
-    import { getArticles } from "@/utils/rest-api";
+    import { getAcceptedArticles, getAllArticles, getArticles } from "@/utils/rest-api";
 
     import { useAuthStore } from "@/stores/auth.store";
     import { useArticleStore } from "@/stores/article.store";
@@ -35,11 +35,11 @@
     };
 
     // Getting the number of articles
-    const articles = await getArticles();
-    articleStore.count = articles ? articles.length : 0;
+    const articlesAccepted = await getAcceptedArticles();
+    articleStore.countAccepted = articlesAccepted ? articlesAccepted.length : 0;
     // Getting the articles
-    articleStore.articles = await getArticles(articleStore.page);
-    // End of setup
+    articleStore.articles = await getAcceptedArticles(articleStore.page);
+    // End of setu`
 
     //console.log(authStore.userData);
     
