@@ -11,12 +11,20 @@ import Button from "@/components/Inputs/Button.vue";
 import PowerIcon from "@/assets/icons/power-icon.vue";
 import { useAuthStore } from "@/stores/auth.store";
 import { ref } from "vue";
+import { getLoginStatus, sessionManager } from "@/utils/utils";
+import router from "@/router";
 
 const authStore = useAuthStore();
 const currentUserPermWeight = ref(0);
 
-const isUserLogged = (localStorage.getItem('isUserLogged') === 'true');
+const isUserLogged = ref(getLoginStatus());
 currentUserPermWeight.value = authStore.userPerm?.perm_weight ?? 0;
+
+async function logout() {
+        await sessionManager().logout();
+        isUserLogged.value = false;
+        router.push({name: 'Login'});
+    }
 
 </script>
 
@@ -57,8 +65,8 @@ currentUserPermWeight.value = authStore.userPerm?.perm_weight ?? 0;
                     <account-icon />
                     {{ authStore.userData?.user_name }}
                 </NavLink>
-                <Button v-if="isUserLogged">
-                    <power-icon />
+                <Button v-if="isUserLogged" @click="logout">
+                        <power-icon />
                 </Button>
             </div>
         </div>
