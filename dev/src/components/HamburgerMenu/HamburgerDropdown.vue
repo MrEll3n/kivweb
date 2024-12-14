@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import NavLink from "@/components/Navbar/NavLink.vue";
+import NavAccountLink from "@/components/Navbar/NavAccountLink.vue";
 import ThemeSwitcher from "@/components/ThemeSwitcher/ThemeSwitcher.vue";
 import AccountIcon from "@/assets/icons/account-icon.vue";
 import NavLinkBorder from "@/components/Navbar/NavLinkBorder.vue";
@@ -56,15 +57,20 @@ async function logout() {
                     <div class="h-24"></div>
                 </div>
             </div>
-            <div class="absolute flex flex-row gap-6 right-0 top-0 my-6 pr-14">
+            <div class="absolute flex flex-row gap-6 right-0 top-0 py-3 pr-14">
                 <NavLinkBorder v-if="!isUserLogged" link="/login">
                     <account-icon />
                     Log In
                 </NavLinkBorder>
-                <NavLink v-if="isUserLogged" link="/profile">
-                    <account-icon />
-                    {{ authStore.userData?.user_name }}
-                </NavLink>
+                <NavAccountLink v-if="isUserLogged" link="/profile">
+                        <template v-slot:Icon><account-icon/></template>
+                        <template v-slot:Name>
+                            <div class="flex flex-col flex-shrink-0 items-center">
+                                <span>{{ authStore.userData?.user_name ?? 'Name' }}</span>
+                                <span class="font-dosis-regular text-sm">{{ authStore.userPerm?.perm_name ?? "Role" }}</span>
+                            </div>
+                        </template>
+                </NavAccountLink>
                 <Button v-if="isUserLogged" @click="logout">
                         <power-icon />
                 </Button>
