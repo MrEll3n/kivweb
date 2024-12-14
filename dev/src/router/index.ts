@@ -152,7 +152,6 @@ router.beforeEach(async (to, from, next) => {
         const token = await getToken();
         if (token == null) { 
             localStorage.setItem('isUserLogged', 'false');
-            //next({ name: 'Login' });
             router.push({ name: 'Login' });
             return;
         }
@@ -163,7 +162,6 @@ router.beforeEach(async (to, from, next) => {
 
         // If the user is not allowed to access the route, redirect to the home page
         if (useAuthStore().getDisallowedRoutes.includes(to.name as string)) {
-            //router.push({ name: 'Home' });
             router.go(-1);
             return;
         }
@@ -184,7 +182,6 @@ router.beforeEach(async (to, from, next) => {
         return;
     } else {
         // Redirect to login page
-        //router.push({ name: 'Home' });
         router.go(-1);
         return;
     }
