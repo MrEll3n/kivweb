@@ -10,7 +10,10 @@ export const useAuthStore = defineStore('auth', {
         userPerm: null as (Perm | null),
     }),
     getters: {
-        getDissallowedRoutes(): string[] {
+        getDisallowedRoutes(): string[] {
+            if (this.userPerm) {
+                return this.userPerm.disallowed_routes;
+            }
             return [];
         }
     }

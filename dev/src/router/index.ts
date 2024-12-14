@@ -156,12 +156,13 @@ router.beforeEach(async (to, from, next) => {
             router.push({ name: 'Login' });
             return;
         }
+        
         //refreshToken();
         useAuthStore().userData = await getCurrentUser();
         useAuthStore().userPerm = await getCurrentPerm();
 
-
-        if (useAuthStore().getDissallowedRoutes.includes(to.name as string)) {
+        // If the user is not allowed to access the route, redirect to the home page
+        if (useAuthStore().getDisallowedRoutes.includes(to.name as string)) {
             //router.push({ name: 'Home' });
             router.go(-1);
             return;
