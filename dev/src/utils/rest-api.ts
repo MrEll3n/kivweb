@@ -248,6 +248,27 @@ export async function getAllReviewers(): Promise<Review[] | null> {
     return null;
 }
 
+export async function getReviewers(): Promise<UserData[] | null> {
+    try {
+        const res = await axios.get(BASE_URL + '/users', {
+            params: {
+                // Add your query parameters heresteam
+                // Example: page: 1, limit: 10
+            },
+            withCredentials: true
+        });
+
+        if (res.status === 200) {
+            //authStore.isUserLogged = true;
+            return res.data;
+        }      
+    } catch (error) {
+        console.log("An error occurred while loading article:", error);
+        return null;
+    }
+    return null;
+}
+
 export async function auth(sessionToken: string): Promise<boolean> {
     try {
         const res = await axios.post(BASE_URL + '/auth', {}, {

@@ -17,9 +17,10 @@ import SubmitInput from "@/components/Inputs/SubmitInput.vue";
 import type SelectVue from "@/components/Inputs/SelectInput.vue";
 import Option from "@/components/Inputs/Option.vue";
 import type { Article } from "@/types";
-import { getReviewedArticles } from "@/utils/rest-api";
+import { getReviewedArticles, getReviewers } from "@/utils/rest-api";
 
 const articlesToReview = await getReviewedArticles() ? ref(await getReviewedArticles()) : ref([]);
+const reviewers = await getReviewers() ? ref(await getReviewers()) : ref([]);
 
 </script>
 
@@ -48,9 +49,9 @@ const articlesToReview = await getReviewedArticles() ? ref(await getReviewedArti
                         <label class="absolute -top-9 text-2xl font-dosis-regular dark:text-neutral-100 text-neutral-800">Reviewer</label>
                         <SelectInput>
                             <Option
-                                v-for="article in articlesToReview"
-                                :value="article.article_id"
-                                :label="article.article_header"
+                                v-for="reviewer in reviewers"
+                                :value="reviewer.user_id"
+                                :label="reviewer.user_name"
                             />
                         </SelectInput>
                     </div>
