@@ -22,6 +22,7 @@ export interface Article {
     article_created: Date
     article_author: string
     accepted: boolean
+    reviewed: boolean
 }
 
 export interface Review {

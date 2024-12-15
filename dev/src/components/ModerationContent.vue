@@ -17,10 +17,29 @@ import SubmitInput from "@/components/Inputs/SubmitInput.vue";
 import type SelectVue from "@/components/Inputs/SelectInput.vue";
 import Option from "@/components/Inputs/Option.vue";
 import type { Article } from "@/types";
-import { getReviewedArticles, getReviewers } from "@/utils/rest-api";
+import { createReview, getArticlesModeration, getReviewedArticles, getReviewers, updateArticleReviewed } from "@/utils/rest-api";
+import router from "@/router";
 
-const articlesToReview = await getReviewedArticles() ? ref(await getReviewedArticles()) : ref([]);
+const articlesToReview = await getArticlesModeration() ? ref(await getArticlesModeration()) : ref([]);
 const reviewers = await getReviewers() ? ref(await getReviewers()) : ref([]);
+
+const selectedArticle = ref();
+const selectedReviewer = ref();
+
+async function appointReviewer() {
+    if (selectedArticle.value === undefined || selectedReviewer.value === undefined) {
+        console.log("Please select an article and a reviewer");
+        return;
+    }
+    
+    const result1 = await createReview(selectedArticle.value, selectedReviewer.value);
+    const result2 = await updateArticleReviewed(selectedArticle.value, 1);
+    console.log("Appointing reviewer");
+    console.log(selectedArticle.value);
+    console.log(selectedReviewer.value);
+    router.go(0);
+}
+
 
 </script>
 
@@ -36,9 +55,10 @@ const reviewers = await getReviewers() ? ref(await getReviewers()) : ref([]);
                 <div class="flex xl:flex-row flex-col xl:gap-8 gap-16">
                     <div class="relative flex flex-col justify-center items-center">
                         <label class="absolute -top-9 text-2xl font-dosis-regular dark:text-neutral-100 text-neutral-800">Article</label>
-                        <SelectInput>
+                        <SelectInput v-model="selectedArticle">
                             <Option
                                 v-for="article in articlesToReview"
+                                :key="article.article_id"
                                 :value="article.article_id"
                                 :label="article.article_header"
                             />
@@ -47,9 +67,10 @@ const reviewers = await getReviewers() ? ref(await getReviewers()) : ref([]);
 
                     <div class="relative flex flex-col justify-center items-center">
                         <label class="absolute -top-9 text-2xl font-dosis-regular dark:text-neutral-100 text-neutral-800">Reviewer</label>
-                        <SelectInput>
+                        <SelectInput v-model="selectedReviewer">
                             <Option
                                 v-for="reviewer in reviewers"
+                                :key="reviewer.user_id"
                                 :value="reviewer.user_id"
                                 :label="reviewer.user_name"
                             />
@@ -57,7 +78,7 @@ const reviewers = await getReviewers() ? ref(await getReviewers()) : ref([]);
                     </div>
 
                     <div class="flex flex-col justify-center items-center">
-                        <SubmitInput>Appoint</SubmitInput>
+                        <SubmitInput @click="appointReviewer">Appoint</SubmitInput>
                     </div>
                 
                 </div>

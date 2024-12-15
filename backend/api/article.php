@@ -30,6 +30,8 @@ function handleGETRequest($pdo, $sessionMan, $endpoint, $getQueries) {
     try {
         if (isset($_GET['accepted'])) {
             handleAcceptedArticles($pdo, $_GET['accepted']);
+        } else if (isset($_GET['moderation'])) {
+            handleModerationArticles($pdo); 
         } else {
             fetchAllArticles($pdo);
         }
@@ -55,6 +57,18 @@ function handleAcceptedArticles($pdo, $accepted) {
     }
 }
 
+function handleModerationArticles($pdo) {
+    $result = $pdo->query(
+        "SELECT ARTICLE.article_id, ARTICLE.article_header, ARTICLE.article_content, ARTICLE.article_created, ARTICLE.article_image, ARTICLE.accepted, USER.user_name as article_author
+         FROM ARTICLE 
+         JOIN USER ON ARTICLE.user_id = USER.user_id
+         WHERE ARTICLE.accepted = 0 AND ARTICLE.reviewed = 0"
+    )->fetchAll(PDO::FETCH_ASSOC);
+
+    http_response_code(200);
+    echo json_encode($result); 
+}
+
 function paginateArticles($pdo, $acceptedValue, $page) {
     $PAGE_LENGTH = 5;
     $PAGE_OFFSET = 5;
@@ -64,7 +78,7 @@ function paginateArticles($pdo, $acceptedValue, $page) {
         "SELECT ARTICLE.article_id, ARTICLE.article_header, ARTICLE.article_content, ARTICLE.article_created, ARTICLE.article_image, ARTICLE.accepted, USER.user_name as article_author
          FROM ARTICLE 
          JOIN USER ON ARTICLE.user_id = USER.user_id 
-         WHERE ARTICLE.accepted = :accepted 
+         WHERE ARTICLE.accepted = :accepted AND ARTICLE.reviewed = 0
          LIMIT :page_length OFFSET :offset"
     );
 
@@ -135,6 +149,8 @@ function handlePOSTRequest($pdo, $sessionMan, $endpoint) {
 
     if (count($endpoint) == 1) {
         createArticle($pdo, $currentUserID);
+    } elseif (count($endpoint) == 3 && $endpoint[2] == 'reviewed') {
+        updateArticleReviewed($pdo, $endpoint[1], $input['reviewed']);
     } elseif (count($endpoint) == 3 && $endpoint[2] == 'update') {
         updateArticle($pdo, $endpoint[1], $input['accepted']);
     }
@@ -216,4 +232,28 @@ function updateArticle($pdo, $articleId, $accepted) {
         exit();
     }
 }
+
+function updateArticleReviewed($pdo, $articleId, $reviewed) {
+    try {
+        $stmt = $pdo->prepare("UPDATE ARTICLE SET reviewed = :reviewed WHERE article_id = :id");
+        $stmt->execute([
+            'reviewed' => $reviewed,
+            'id' => $articleId
+        ]);
+
+        http_response_code(200);
+        echo json_encode([
+            "message" => "Article updated"
+        ]);
+        exit();
+    } catch (PDOException $e) {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "400",
+            "message" => $e->getMessage()
+        ]);
+        exit();
+    }
+}
+
 ?>

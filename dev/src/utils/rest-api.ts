@@ -183,6 +183,28 @@ export async function getReviewedArticle(id: number): Promise<Article | null> {
     return null;
 }
 
+export async function getArticlesModeration(): Promise<Article[] | null> {
+    try {
+        const res = await axios.get(BASE_URL + '/article', {
+            params: {
+                // Add your query parameters heresteam
+                // Example: page: 1, limit: 10
+                moderation: true
+            },
+            withCredentials: true
+        });
+
+        if (res.status === 200) {
+            //authStore.isUserLogged = true;
+            return res.data;
+        }      
+    } catch (error) {
+        console.log("An error occurred while loading article:", error);
+        return null;
+    }
+    return null;
+}
+
 export async function getReviewedArticles(page?: number): Promise<Article[] | null> {
     try {
         const res = await axios.get(BASE_URL + '/article', {
@@ -436,6 +458,42 @@ export async function acceptReview(article_id: number, review_id: number): Promi
         console.error("An error occurred while authenticating user:", error);
         return false;
     }
+    return false;
+}
+
+export async function createReview(article_id: number, user_id: number): Promise<boolean> {
+    try {
+        const res = await axios.post(BASE_URL + '/review/create', {
+            article_id: article_id,
+            user_id: user_id,
+        });
+
+        if (res.status === 200) {
+            return true;
+        }
+    } catch (error) {
+        console.error("An error occurred while authenticating user:", error);
+        return false;
+    }
+    return false;
+}
+
+export async function updateArticleReviewed(article_id: number, reviewed: number): Promise<boolean> {
+    try {
+        const res = await axios.post(BASE_URL + '/article/'+ article_id +'/reviewed', {
+            article_id: article_id,
+            reviewed: reviewed,
+        });
+
+        if (res.status === 200) {
+            console.log(res.data);
+            return true;
+        }
+    } catch (error) {
+        console.error("An error occurred while authenticating user:", error);
+        return false;
+    }
+    console.log('Damn');
     return false;
 }
 

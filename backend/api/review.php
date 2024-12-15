@@ -244,7 +244,6 @@ function handleGETRequest($pdo, $sessionMan, $endpoint) {
 
 function handlePOSTRequest($pdo, $sessionMan, $endpoint) {
     $input = json_decode(file_get_contents("php://input"), true);
-    //echo $input['accepted'];
 
     if (!checkCookieToken()) {
         http_response_code(401);
@@ -252,18 +251,48 @@ function handlePOSTRequest($pdo, $sessionMan, $endpoint) {
     }
 
     $token = 0;
-
     $untrimmedToken = $_COOKIE['Authorization'];
     $token = trimToken($untrimmedToken);
     
     $currentUserID = $sessionMan->getUserId($token);
 
+    // Check if we are creating a new review
+    if (count($endpoint) == 2 && $endpoint[1] == 'create') {
+        try {
+            // Prepare the SQL statement to insert a new review
+            $stmt = $pdo->prepare("INSERT INTO `REVIEW` (article_id, user_id, finished) VALUES (:article_id, :user_id, :finished)");
+            $stmt->execute([
+                'article_id' => $input['article_id'], // Assuming the input contains the article_id
+                'user_id' => $currentUserID, // Use the current user's ID
+                'finished' => 0 // Assuming the input contains the finished status
+            ]);
+
+            // Get the ID of the newly created review
+            $review_id = $pdo->lastInsertId();
+
+            http_response_code(201); // Created
+            echo json_encode([
+                "message" => "Review created successfully",
+                "review_id" => $review_id
+            ]);
+            exit();
+        } catch (PDOException $e) {
+            http_response_code(400);
+            echo json_encode([
+                "status" => "400",
+                "message" => $e->getMessage()
+            ]);
+            echo "285";
+            exit();
+        }
+    }
+
+    // Existing update logic
     if (count($endpoint) == 3) {
         if ($endpoint[2] == 'update') {
             try {
                 $stmt = $pdo->prepare("UPDATE `REVIEW` SET `finished` = :bool WHERE `REVIEW`.`review_id` = :id");
                 $stmt->execute(['bool' => $input['finished'], 'id' => $endpoint[1]]);
-                $result = $stmt->fetch();
                 http_response_code(200);
                 echo json_encode([
                     "message" => "Review updated"
@@ -275,12 +304,12 @@ function handlePOSTRequest($pdo, $sessionMan, $endpoint) {
                     "status" => "400",
                     "message" => $e->getMessage()
                 ]);
-                echo 69;
                 exit();
             }
         }
     }
 }
+
 
 function getUser($pdo, $review_id) {
     $stmt = $pdo->prepare("SELECT  FROM `REVIEW` WHERE review_id = :review_id"); 

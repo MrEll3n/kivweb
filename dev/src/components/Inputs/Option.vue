@@ -4,10 +4,11 @@
         value: number
         label: string
     }>()
+    
 
 </script>
 
 
 <template>
-    <option value="{{ value }}">{{ label }}</option>
+    <option :value="value">{{ label }}</option>
 </template>

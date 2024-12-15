@@ -39,7 +39,6 @@ const isUserLogged = localStorage.getItem("isUserLogged") === "true";
         </h1>
       </div>
       <div>
-        <SelectInput> </SelectInput>
       </div>
     </div>
   </div>
