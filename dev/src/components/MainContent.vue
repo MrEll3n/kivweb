@@ -15,7 +15,7 @@
     const articleStore = useArticleStore();
 
     const isUserLogged = (localStorage.getItem('isUserLogged') === 'true');
-    console.log(articleStore.countAccepted);
+    //console.log(useArticleStore().countAccepted);
 
 </script>
 
@@ -39,7 +39,7 @@
                 :created="article.article_created"
                 :articleId="article.article_id"
             />
-            <PageSelectorArticle v-if="useArticleStore().countAccepted > 0" link="/news" v-model="useArticleStore().countAccepted" class="-mt-5 mb-5" />
+            <PageSelectorArticle v-if="useArticleStore().countAccepted > 0" link="/news" class="-mt-5 mb-5" />
         </div>
     </div>
 </template>

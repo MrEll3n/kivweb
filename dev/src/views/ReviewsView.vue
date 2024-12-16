@@ -10,7 +10,6 @@
     import { useReviewStore } from "@/stores/review.store";
 
     const isUserLogged = localStorage.getItem('isUserLogged') ? ref(localStorage.getItem('isUserLogged') === 'true') : ref(false);
-    console.log('IsUserLogged: '+isUserLogged.value);
 
     const route = useRoute();
 
@@ -30,10 +29,6 @@
     useReviewStore().count = reviews ? reviews.length : 0;
 
     useReviewStore().reviews = await getReviews(useReviewStore().page);
-
-    console.log(useReviewStore().reviews);
-    
-
 
 </script>
 

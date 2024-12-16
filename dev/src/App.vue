@@ -1,11 +1,9 @@
 <script setup lang="ts">
-    import UserTimeOut from "@/components/Notifications/UserTimeOut.vue";
     //import { checkTimeOut } from "@/utils/utils";
 
     import { onMounted, onUnmounted, ref, watch } from 'vue';
-    import { RouterView } from 'vue-router'
-    import { isTokenExpired } from '@/utils/rest-api';
-    import { onUpdated } from "vue";
+    import { RouterView, useRoute } from 'vue-router'; // Import useRoute from vue-router
+
 
     const isSessionExpired = localStorage.getItem('isSessionExpired') ? ref((localStorage.getItem('isSessionExpired') === 'true')) : ref(false);
 
@@ -14,6 +12,9 @@
     } else {
         document.body.style.overflow = 'auto';
     }
+
+    const route = useRoute(); // Add this line to get the route object
+
 
 </script>
 

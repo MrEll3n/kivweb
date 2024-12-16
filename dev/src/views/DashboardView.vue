@@ -10,7 +10,6 @@
 
     
     const isUserLogged = localStorage.getItem('isUserLogged') ? ref(localStorage.getItem('isUserLogged') === 'true') : ref(false);
-    console.log('IsUserLogged: '+isUserLogged.value);
 
 </script>
 

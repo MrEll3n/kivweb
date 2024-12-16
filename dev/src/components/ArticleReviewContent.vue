@@ -6,30 +6,35 @@
 
     import { ref } from "vue";
 
-    import ChevronLeft from "@/assets/icons/chevron-left.vue";
-    import ChevronRight from "@/assets/icons/chevron-right.vue";
-    import ContentCard from "./ContentCard/ContentCard.vue";
-    import Input from "@/components/Inputs/Input.vue";
+    import MonoButton from "./Inputs/MonoButton.vue";
     //@ts-ignore
     import TextArea from "@/components/Inputs/TextArea.vue";
     import SubmitInput from "@/components/Inputs/SubmitInput.vue";
     import type { Article } from "@/types";
+    import { acceptReview, getReviewedArticles, getReviews, updateArticleReviewed } from "@/utils/rest-api";
+    import router from "@/router";
+    import { useReviewStore } from "@/stores/review.store";
     
 
     const authStore = useAuthStore();
     const articleStore = useArticleStore();
 
     const props = defineProps<{
-        article: Article;
+        article: Article
     }>();
 
-
+    const reviewedArticles = await getReviews();
+    const reviewed_id = reviewedArticles?.find((review) => review.article_id === props.article.article_id)?.review_id;
 
     const isUserLogged = (localStorage.getItem('isUserLogged') === 'true');
 
-    console.log(props.article);
-
-    
+    async function eventAcceptReview() {
+        const result1 = await acceptReview(props.article.article_id, reviewed_id ? reviewed_id : 0);
+        const result2 = await updateArticleReviewed(props.article.article_id, 0);
+        // Handle the result as needed
+        //console.log(result);
+        router.go(-1);
+    }
 
 </script>
 
@@ -45,6 +50,10 @@
                 </div>
                 <div>
                     <p class="font-dosis-regular text-pretty dark:text-neutral-100 text-neutral-800 text-xl md:mr-auto pl-4">{{ props.article.article_content }}</p>
+                </div>
+                <div>
+                    <MonoButton @clicker="eventAcceptReview" class="z-50">Accept</MonoButton>
+                    <MonoButton @click.stop="" class="z-50">Deny</MonoButton>
                 </div>
             </div>
         </div>

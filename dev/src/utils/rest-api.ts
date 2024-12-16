@@ -53,12 +53,7 @@ export async function submitNewArticle(article_header: string, article_content: 
 
 export async function getArticle(id: number): Promise<Article | null> {
     try {
-        const res = await axios.get(BASE_URL + '/article', {
-            params: {
-                // Add your query parameters heresteam
-                // Example: page: 1, limit: 10
-                id: id,
-            },
+        const res = await axios.get(BASE_URL + '/article/' + id, {
             withCredentials: true
         });
 
@@ -112,14 +107,14 @@ export async function getAllArticles(): Promise<Article[] | null> {
     return null;
 }
 
-export async function getAcceptedArticle(id: number): Promise<Article | null> {
+export async function getAcceptedArticle(id: number, accepted: boolean): Promise<Article | null> {
     try {
         const res = await axios.get(BASE_URL + '/article', {
             params: {
                 // Add your query parameters heresteam
                 // Example: page: 1, limit: 10
                 id: id,
-                accepted: true
+                accepted: accepted
             },
             withCredentials: true
         });
@@ -135,7 +130,7 @@ export async function getAcceptedArticle(id: number): Promise<Article | null> {
     return null;
 }
 
-export async function getAcceptedArticles(page?: number): Promise<Article[] | null> {
+export async function getAcceptedArticles(accepted: boolean, page?: number): Promise<Article[] | null> {
     try {
         const res = await axios.get(BASE_URL + '/article', {
             params: {
@@ -144,7 +139,7 @@ export async function getAcceptedArticles(page?: number): Promise<Article[] | nu
                 ...(page && {
                     page: page,
                 }),
-                accepted: true
+                accepted: accepted
             },
             withCredentials: true
         });
@@ -160,14 +155,14 @@ export async function getAcceptedArticles(page?: number): Promise<Article[] | nu
     return null;
 }
 
-export async function getReviewedArticle(id: number): Promise<Article | null> {
+export async function getReviewedArticle(id: number, accepted: boolean): Promise<Article | null> {
     try {
         const res = await axios.get(BASE_URL + '/article', {
             params: {
                 // Add your query parameters heresteam
                 // Example: page: 1, limit: 10
                 page: id,
-                accepted: false
+                accepted: accepted
             },
             withCredentials: true
         });

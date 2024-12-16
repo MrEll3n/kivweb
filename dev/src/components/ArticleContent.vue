@@ -27,9 +27,6 @@
 
     const isUserLogged = (localStorage.getItem('isUserLogged') === 'true');
 
-    console.log(props.article);
-
-    
 
 </script>
 

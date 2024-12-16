@@ -11,6 +11,7 @@
     import { type Article } from "@/types";
     import { useArticleStore } from "@/stores/article.store";
     import { useRoute } from "vue-router";
+    import router from "@/router";
 
     const articleStore = useArticleStore();
     const route = useRoute();
@@ -22,6 +23,11 @@
 
     const currentArticleId = Number(route.params.article);
     const currentArticle = useArticleStore().articles?.find((article: Article) => article.article_id === currentArticleId);
+    //console.log(currentArticle);
+    if (currentArticle === undefined) {
+        router.push({path: '/404'});
+    }
+
 </script>
 
 <template>

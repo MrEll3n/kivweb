@@ -35,10 +35,10 @@
     };
 
     // Getting the number of articles
-    const articlesAccepted = await getAcceptedArticles();
+    const articlesAccepted = await getAcceptedArticles(true);
     articleStore.countAccepted = articlesAccepted ? articlesAccepted.length : 0;
     // Getting the articles
-    articleStore.articles = await getAcceptedArticles(articleStore.page);
+    articleStore.articles = await getAcceptedArticles(true, articleStore.page);
     // End of setu`
 
     //console.log(authStore.userData);

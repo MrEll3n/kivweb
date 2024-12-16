@@ -28,12 +28,19 @@ switch ($requestMethod) {
 
 function handleGETRequest($pdo, $sessionMan, $endpoint, $getQueries) {
     try {
-        if (isset($_GET['accepted'])) {
-            handleAcceptedArticles($pdo, $_GET['accepted']);
-        } else if (isset($_GET['moderation'])) {
-            handleModerationArticles($pdo); 
-        } else {
-            fetchAllArticles($pdo);
+        if (count($endpoint) == 1) {
+            if (isset($_GET['accepted'])) {
+                handleAcceptedArticles($pdo, $_GET['accepted']);
+            } else if (isset($_GET['moderation'])) {
+                handleModerationArticles($pdo); 
+            } else if (isset($_GET['page'])) {
+                paginateArticles($pdo, false, $_GET['page']);
+            } else {
+                fetchAllArticles($pdo);
+            }
+        }
+        if (count($endpoint) == 2) {
+            fetchArticleById($pdo, $endpoint[1]);
         }
     } catch (PDOException $e) {
         http_response_code(400);
@@ -51,7 +58,7 @@ function handleAcceptedArticles($pdo, $accepted) {
     if (isset($_GET['page'])) {
         paginateArticles($pdo, $acceptedValue, $_GET['page']);
     } elseif (isset($_GET['id'])) {
-        fetchArticleById($pdo, $acceptedValue, $_GET['id']);
+        fetchAcceptedArticleById($pdo, $acceptedValue, $_GET['id']);
     } else {
         fetchArticlesByAcceptance($pdo, $acceptedValue);
     }
@@ -92,7 +99,7 @@ function paginateArticles($pdo, $acceptedValue, $page) {
     echo json_encode($result);
 }
 
-function fetchArticleById($pdo, $acceptedValue, $id) {
+function fetchAcceptedArticleById($pdo, $acceptedValue, $id) {
     $stmt = $pdo->prepare(
         "SELECT ARTICLE.article_id, ARTICLE.article_header, ARTICLE.article_content, ARTICLE.article_created, ARTICLE.article_image, ARTICLE.accepted, USER.user_name as article_author
          FROM ARTICLE 
@@ -102,6 +109,21 @@ function fetchArticleById($pdo, $acceptedValue, $id) {
 
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     $stmt->bindParam(':accepted', $acceptedValue, PDO::PARAM_INT);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    http_response_code(200);
+    echo json_encode($result);
+}
+function fetchArticleById($pdo, $id) {
+    $stmt = $pdo->prepare(
+        "SELECT ARTICLE.article_id, ARTICLE.article_header, ARTICLE.article_content, ARTICLE.article_created, ARTICLE.article_image, ARTICLE.accepted, USER.user_name as article_author
+         FROM ARTICLE 
+         JOIN USER ON ARTICLE.user_id = USER.user_id 
+         WHERE ARTICLE.article_id = :id"
+    );
+
+    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
