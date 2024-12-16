@@ -74,7 +74,7 @@ export default defineComponent({
 </script>
 
 <template>
-    <RouterLink :to="`post/${articleId}`" class="border dark:border-neutral-300 border-neutral-800 dark:bg-black bg-gray-50 h-1/4 md:h-[24rem] z-10 rounded flex flex-col">
+    <RouterLink :to="`post/${articleId}`" class="border dark:border-neutral-300 border-neutral-800 dark:bg-black bg-gray-50 h-1/4 md:h-[24rem] z-10 rounded flex flex-col min-w-full">
         <div class="flex md:flex-row flex-col flex-shrink-0 h-full rounded flex-grow">
             <div class="flex md:flex-shrink-0 w-full md:w-80 justify-center sm:border-b md:border-b-0 md:border-r dark:border-neutral-300 border-neutral-800">
                 <img v-if="image != null" :src="image_src" alt="news_image" class="object-cover w-full h-full">
