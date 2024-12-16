@@ -19,8 +19,6 @@ const qPage = computed(() => Number(route.query.page) || 1);
 
 async function nextPage() {
     const currentCount = (await getAcceptedArticles(true, articleStore.page))?.length || 0;
-    console.log(currentCount);
-    console.log(articleStore.numberOfContentInPage);
     if (currentCount <= articleStore.numberOfContentInPage) {
         articleStore.page = qPage.value + 1;
         await navigateToPage();
@@ -35,12 +33,8 @@ async function previousPage() {
 }
 
 async function navigateToPage() {
-    console.log('-----------');
-    console.log(articleStore.articles);
     articleStore.articles = await getAcceptedArticles(true, articleStore.page) as Article[] | null;
     router.push({ path: props.link, query: { page: articleStore.page.toString() } });
-    console.log(articleStore.articles); 
-    console.log('-----------');
 }
 
 const count = computed(() => articleStore.articles?.length ?? 0);

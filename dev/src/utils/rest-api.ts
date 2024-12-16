@@ -14,7 +14,7 @@ export async function login(user_email: string, user_password: string): Promise<
         if (res.status === 200) {
             //console.log("Login successful");
             localStorage.setItem('isUserLogged', 'true');
-            console.log(res.data);
+            //console.log(res.data);
             return res.data;
         } else {
             //console.log("Invalid credentials");
@@ -32,10 +32,11 @@ export async function submitNewArticle(article_header: string, article_content: 
         formData.append('article_header', article_header); // Append the article header
         formData.append('article_content', article_content); // Append the article content
         formData.append('article_image', article_image); // Append the image file
+        //console.log(article_image);
 
         const res = await axios.post(BASE_URL + '/article', formData, {
             headers: {
-                'Content-Type': 'multipart/form-data' // Set the content type to multipart/form-data
+                'Content-Type': 'multipart/form-data'
             },
             withCredentials: true // Include credentials if needed
         });
@@ -481,7 +482,7 @@ export async function updateArticleReviewed(article_id: number, reviewed: number
         });
 
         if (res.status === 200) {
-            console.log(res.data);
+            //console.log(res.data);
             return true;
         }
     } catch (error) {
@@ -491,6 +492,27 @@ export async function updateArticleReviewed(article_id: number, reviewed: number
     console.log('Damn');
     return false;
 }
+
+export async function fetchImage(image_name: string): Promise<string> {
+    try {
+        const res = await axios.get(BASE_URL + '/fetchImage', {
+            params: {
+                image_name: image_name
+            }
+        });
+
+        if (res.status === 200) {
+            console.log(res.data);
+            return res.data.url;
+        }
+    } catch (error) {
+        console.error("An error occurred while authenticating user:", error);
+        return '';
+    }
+    console.log('Damn');
+    return '';
+}
+
 
 /*
 interface GetUserDataResponse {

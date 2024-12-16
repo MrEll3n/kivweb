@@ -188,7 +188,7 @@ function createArticle($pdo, $currentUserID) {
         exit();
     }
 
-    $article_image = handleFileUpload();
+    $image_path = uploadImage('article_image');
 
     try {
         $stmt = $pdo->prepare(
@@ -199,7 +199,7 @@ function createArticle($pdo, $currentUserID) {
         $stmt->execute([
             'article_header' => $_POST['article_header'],
             'article_content' => $_POST['article_content'],
-            'article_image' => $article_image,
+            'article_image' => $image_path,
             'user_id' => $currentUserID
         ]);
 
@@ -216,6 +216,67 @@ function createArticle($pdo, $currentUserID) {
         ]);
         exit();
     }
+}
+
+function uploadImage($file_name) {
+    if (isset($_FILES[$file_name])) {
+        $targetDir = dirname(__DIR__) . '/public/img/'; // Use absolute path
+        $imageHash = uniqid();
+        $imageExtension = strtolower(pathinfo($_FILES[$file_name]['name'], PATHINFO_EXTENSION));
+        $targetFile = $targetDir . $imageHash . '.' . $imageExtension;
+        $uploadOk = true;
+
+        // Check if the file is an actual image
+        $check = getimagesize($_FILES[$file_name]['tmp_name']);
+        if ($check === false) {
+            echo 'File is not an image.';
+            $uploadOk = false;
+        }
+
+        // Check if the file already exists (highly unlikely with uniqid)
+        if (file_exists($targetFile)) {
+            echo 'File already exists.';
+            $uploadOk = false;
+        }
+
+        // Check file size (500KB limit)
+        if ($_FILES[$file_name]['size'] > 500000) {
+            echo 'File is too large.';
+            $uploadOk = false;
+        }
+
+        // Allow only certain file formats
+        $allowedTypes = ['jpg', 'png', 'jpeg', 'gif'];
+        if (!in_array($imageExtension, $allowedTypes)) {
+            echo 'Only JPG, JPEG, PNG, and GIF files are allowed.';
+            $uploadOk = false;
+        }
+
+        // If everything is ok, try to upload the file
+        if ($uploadOk) {
+            // Ensure the target directory exists, create it if it doesn't
+            if (!is_dir($targetDir)) {
+                if (!mkdir($targetDir, 0777, true)) {
+                    throw new RuntimeException(sprintf('Directory "%s" was not created', $targetDir));
+                }
+            } else {
+                echo 'Directory already exists: ' . $targetDir;
+            }
+
+
+            if (move_uploaded_file($_FILES[$file_name]['tmp_name'], $targetFile)) {
+                echo 'Image uploaded successfully.';
+                return basename($targetFile);
+            } else {
+                echo 'Failed to upload image.';
+            }
+        } else {
+            echo 'File was not uploaded due to errors.';
+        }
+    } else {
+        echo 'No image file uploaded.';
+    }
+    return null;
 }
 
 function handleFileUpload() {

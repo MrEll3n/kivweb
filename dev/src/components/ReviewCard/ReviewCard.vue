@@ -3,8 +3,8 @@ import ChatBubbleLeftIcon from "@/assets/icons/chat-bubble-left-icon.vue";
 import AccountIcon from "@/assets/icons/account-icon.vue";
 import clockIcon from "@/assets/icons/clock-icon.vue";
 import MonoButton from "@/components/Inputs/MonoButton.vue";
-import { defineComponent } from "vue";
-import { acceptReview } from "@/utils/rest-api";
+import { defineComponent, onMounted, ref } from "vue";
+import { acceptReview, fetchImage } from "@/utils/rest-api";
 import router from "@/router";
 
 export default defineComponent({
@@ -49,17 +49,42 @@ export default defineComponent({
     // Access article_id from props
     const article_id = props.article_id;
     const review_id = props.review_id;
+    const image_src = ref<string>('');
 
     async function eventAcceptReview() {
-      const result = await acceptReview(article_id, review_id);
-      // Handle the result as needed
-      //console.log(result);
-      router.go(0);
+        const result = await acceptReview(article_id, review_id);
+        router.go(0);
     }
+
+    const fetchWrapper = async () => {
+        try {
+            if (props.article_image != null) {
+                //console.log(`Fetching image: ${props.article_image}`);
+                const response = await fetchImage(props.article_image);
+                if (response) {
+                    image_src.value = response as string;
+                    console.log(image_src.value);
+                } else {
+                    throw new Error('No response from fetchImage');
+                }
+            } else {
+                image_src.value = "./../../assets/images/news-holder.jpg";
+                console.log('Using default image');
+            }
+        } catch (error) {
+            console.error('Error fetching image:', error);
+            image_src.value = "./../../assets/images/news-holder.jpg";
+        }
+    };
+    
+    onMounted(() => {
+        fetchWrapper();
+    });
 
     // Return any reactive properties or methods you want to expose to the template
     return {
-      eventAcceptReview,
+        eventAcceptReview,
+        image_src
     };
   },
 });
@@ -76,8 +101,8 @@ export default defineComponent({
                 alt="news_image"
             />
             <img
-                v-else-if="true"
-                :src="`/src/assets/images/${article_image}`"
+                v-else:
+                :src="image_src"
                 alt="news_image"
             />
         </div>

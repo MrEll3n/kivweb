@@ -28,15 +28,12 @@ const selectedReviewer = ref();
 
 async function appointReviewer() {
     if (selectedArticle.value === undefined || selectedReviewer.value === undefined) {
-        console.log("Please select an article and a reviewer");
+        //console.log("Please select an article and a reviewer");
         return;
     }
     
     const result1 = await createReview(selectedArticle.value, selectedReviewer.value);
     const result2 = await updateArticleReviewed(selectedArticle.value, 1);
-    console.log("Appointing reviewer");
-    console.log(selectedArticle.value);
-    console.log(selectedReviewer.value);
     router.go(0);
 }
 

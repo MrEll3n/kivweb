@@ -81,6 +81,9 @@ switch ($endpoint[0]) {
     case 'review':
         require 'review.php';
         break;
+    case 'fetchImage':
+        require 'fetchImage.php';
+        break;
     default:
         http_response_code(400);
         echo json_encode(["status" => "error", "message" => "Invalid endpoint"]);
