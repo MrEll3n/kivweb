@@ -74,16 +74,16 @@ export default defineComponent({
 </script>
 
 <template>
-    <RouterLink :to="`post/${articleId}`" class="border dark:border-neutral-300 border-neutral-800 dark:bg-black bg-gray-50 h-1/4 md:h-[24rem] z-10 rounded">
-        <div class="flex md:flex-row flex-col flex-shrink-0 h-full rounded">
+    <RouterLink :to="`post/${articleId}`" class="border dark:border-neutral-300 border-neutral-800 dark:bg-black bg-gray-50 h-1/4 md:h-[24rem] z-10 rounded flex flex-col">
+        <div class="flex md:flex-row flex-col flex-shrink-0 h-full rounded flex-grow">
             <div class="flex md:flex-shrink-0 w-full md:w-80 justify-center sm:border-b md:border-b-0 md:border-r dark:border-neutral-300 border-neutral-800">
-                <img v-if="image != null" :src="image_src" alt="news_image">
-                <img v-else src="./../../assets/images/news-holder.jpg" alt="news_image">
+                <img v-if="image != null" :src="image_src" alt="news_image" class="object-cover w-full h-full">
+                <img v-else src="./../../assets/images/news-holder.jpg" alt="news_image" class="object-cover w-full h-full">
             </div>
-            <div class="flex flex-col">
-                <div class="flex flex-col h-5/6 px-4 pt-4 pb-2">
+            <div class="flex flex-col flex-grow">
+                <div class="flex flex-col h-5/6 px-4 pt-4 pb-2 flex-grow">
                     <h2 class="font-dosis-bold dark:text-neutral-100 text-neutral-800 text-3xl px-3 pb-2 border-b border-neutral-800 dark:border-neutral-300">{{ header }}</h2>
-                    <p class="font-dosis-regular dark:text-neutral-100 text-neutral-800 text-md px-3 pt-2 line-clamp-5 md:line-clamp-6">{{ content }}</p>
+                    <p class="font-dosis-regular dark:text-neutral-100 text-neutral-800 text-md px-3 pt-2 line-clamp-5 md:line-clamp-6 break-all">{{ content }}</p>
                 </div>
                 <div class="flex flex-row justify-between m-4">
                     <chat-bubble-left-icon class="dark:stroke-neutral-100 stroke-neutral-800" />
