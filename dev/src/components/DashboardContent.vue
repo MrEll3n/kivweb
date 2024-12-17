@@ -101,8 +101,8 @@ import router from "@/router";
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-neutral-700 rounded-b-md">
-                        <tr v-for="user in mergedData" :key="user.user_id" class="dark:hover:bg-neutral-900 hover:bg-neutral-50">
+                    <tbody class="bg-gray-50 dark:bg-black divide-y divide-gray-200 dark:divide-neutral-700 rounded-b-md">
+                        <tr v-for="user in mergedData" :key="user.user_id" class="dark:hover:bg-neutral-900 hover:bg-gray-100">
                             <td class="px-6 py-4 whitespace-nowrap text-lg font-medium text-gray-900 dark:text-white">
                                 {{ user.user_id }}
                             </td>
