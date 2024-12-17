@@ -18,6 +18,8 @@
     import DashboardIcon from "@/assets/icons/dashboard-icon.vue";
     import PowerIcon from "@/assets/icons/power-icon.vue";
     import PlusIcon from "@/assets/icons/plus-icon.vue";
+    import ArchieveIcon from "@/assets/icons/archieve-icon.vue";
+    import DocumentCheckIcon from "@/assets/icons/document-check-icon.vue";
 
     import HamburgerMenuButton from "@/components/HamburgerMenu/HamburgerMenuButton.vue";
     import HamburgerDropdown from "@/components/HamburgerMenu/HamburgerDropdown.vue";
@@ -131,14 +133,20 @@
                 <div class="absolute flex flex-row space-x-6 h-20 left-0 items-center pl-7" >
                     <ThemeSwitcher/>
                 </div>
-                <div class="flex flex-row space-x-6 h-20">
-                    <NavLink v-if="isUserLogged" link="/news?page=1">
+                <div v-if="isUserLogged" class="flex flex-row space-x-6 h-20">
+                    <NavLink link="/news?page=1">
                         <home-icon />
                     </NavLink>
-                    <NavLinkBorder v-if="isUserLogged" link="/newpost">
+                    <NavLink v-if="(currentUserPermWeight >= 2)" link="/reviews">
+                        <document-check-icon />
+                    </NavLink>
+                    <NavLinkBorder v-if="(currentUserPermWeight >= 2)" link="/newpost">
                         <plus-icon />
                     </NavLinkBorder>
-                    <NavLink v-if="isUserLogged" link="/dashboard">
+                    <NavLink v-if="(currentUserPermWeight >= 3)" link="/moderation">
+                        <archieve-icon />
+                    </NavLink>
+                    <NavLink v-if="(currentUserPermWeight >= 4)" link="/dashboard">
                         <dashboard-icon />
                     </NavLink>
                 </div>
