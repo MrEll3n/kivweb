@@ -1,23 +1,11 @@
 <script setup lang="ts">
-import { useArticleStore } from "@/stores/article.store";
-import { useAuthStore } from "@/stores/auth.store";
-// TODO: ts-ignore
-//@ts-ignore
-
 import { ref } from "vue";
 
-import ChevronLeft from "@/assets/icons/chevron-left.vue";
-import ChevronRight from "@/assets/icons/chevron-right.vue";
-import ContentCard from "./ContentCard/ContentCard.vue";
-import Input from "@/components/Inputs/Input.vue";
 import SelectInput from "@/components/Inputs/SelectInput.vue";
 //@ts-ignore
-import TextArea from "@/components/Inputs/TextArea.vue";
 import SubmitInput from "@/components/Inputs/SubmitInput.vue";
-import type SelectVue from "@/components/Inputs/SelectInput.vue";
 import Option from "@/components/Inputs/Option.vue";
-import type { Article } from "@/types";
-import { createReview, getArticlesModeration, getReviewedArticles, getReviewers, updateArticleReviewed } from "@/utils/rest-api";
+import { createReview, getArticlesModeration, getReviewers, updateArticleReviewed } from "@/utils/rest-api";
 import router from "@/router";
 
 const articlesToReview = await getArticlesModeration() ? ref(await getArticlesModeration()) : ref([]);

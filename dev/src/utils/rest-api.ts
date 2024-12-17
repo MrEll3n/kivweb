@@ -32,7 +32,7 @@ export async function submitNewArticle(article_header: string, article_content: 
         formData.append('article_header', article_header); // Append the article header
         formData.append('article_content', article_content); // Append the article content
         formData.append('article_image', article_image); // Append the image file
-        //console.log(article_image);
+        console.log(article_image);
 
         const res = await axios.post(BASE_URL + '/article', formData, {
             headers: {
@@ -592,6 +592,23 @@ export async function deleteReview(review_id: number): Promise<boolean> {
     return false;
 }
 
+export async function updateUser(user_id: number, user_name: string, user_email: string, user_password: string): Promise<boolean> {
+    try {
+        const res = await axios.put(BASE_URL + '/users/' + user_id, {
+            user_name: user_name,
+            user_email: user_email,
+            user_password: user_password
+        });
+
+        if (res.status === 200) {
+            return true;
+        }
+    } catch (error) {
+        console.error("An error occurred while authenticating user:", error);
+        return false;
+    }
+    return false;
+}
 
 /*
 interface GetUserDataResponse {

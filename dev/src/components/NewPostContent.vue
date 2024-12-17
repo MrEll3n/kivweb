@@ -44,7 +44,7 @@ async function eventNewPost() {
 			<div class="flex flex-col justify-between items-center w-full px-10 gap-10">
 				<div class="flex flex-col justify-between w-full">
 					<label class="font-dosis-bold dark:text-neutral-100 text-neutral-800 text-4xl md:mr-auto pl-4 mb-4">Header</label>
-					<Input v-model="article_header" class="w-full" />
+					<Input v-model="article_header" class="w-full" type="text"/>
 				</div>
 			</div>
 			<div class="flex flex-col justify-between w-full px-10">

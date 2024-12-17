@@ -192,6 +192,7 @@ function createArticle($pdo, $currentUserID) {
     }
 
     $image_path = uploadImage('article_image');
+    echo $image_path;
 
     try {
         $stmt = $pdo->prepare(
@@ -222,6 +223,7 @@ function createArticle($pdo, $currentUserID) {
 }
 
 function uploadImage($file_name) {
+    echo $_FILES[$file_name];
     if (isset($_FILES[$file_name])) {
         $targetDir = dirname(__DIR__) . '/public/img/'; // Use absolute path
         $imageHash = uniqid();

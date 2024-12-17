@@ -120,7 +120,7 @@ export default defineComponent({
         </div>
         <div class="flex flex-col flex-grow">
             <div class="flex flex-col h-5/6 px-4 pt-4 pb-2">
-                <h2 class="font-dosis-bold dark:text-neutral-100 text-neutral-800 text-3xl px-3 pb-2 border-b border-neutral-800 dark:border-neutral-300">{{ article_header }}</h2>
+                <h2 class="font-dosis-bold dark:text-neutral-100 text-neutral-800 text-3xl px-3 pb-2 border-b border-neutral-800 dark:border-neutral-300 break-all">{{ article_header }}</h2>
                 <p class="font-dosis-regular dark:text-neutral-100 text-neutral-800 text-md px-3 pt-2 line-clamp-5 md:line-clamp-6 break-all">{{ article_content }}</p>
             </div>
             <div class="flex flex-col md:flex-row justify-between m-4 flex-wrap gap-4">

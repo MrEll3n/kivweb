@@ -143,113 +143,103 @@ function handleUserAttributeById($pdo, $user_id, $item) {
 function handlePUTRequest($pdo, $sessionMan, $endpoint) {
     $input = json_decode(file_get_contents("php://input"), true);
 
+    // Ensure necessary fields are present
+    if (!isset($input['user_name']) || !isset($input['user_email']) || !isset($input['user_password'])) {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "400",
+            "message" => "Invalid data"
+        ]);
+        return;
+    }
+
+    // Hash the password
     $hashed_password = password_hash($input['user_password'], PASSWORD_BCRYPT);
 
-    if (isset($input['user_name']) and isset($input['user_email']) and isset($input['user_password'])) {
-        try {
-            $is_correct = true;
+    try {
+        // Check if user already exists
+        $stmt_select = $pdo->prepare('SELECT * FROM USER WHERE user_name = :user_name OR user_email = :user_email');
+        $stmt_select->execute(['user_name' => $input['user_name'], 'user_email' => $input['user_email']]);
+        $result_select = $stmt_select->fetch();
 
-            // SELECT Query
-            $stmt_select = $pdo->prepare('SELECT * FROM USER WHERE user_name = :user_name OR user_email = :user_email');
-            $stmt_select->execute(['user_name' => $input['user_name'], 'user_email' => $input['user_email']]);
-            $result_select = $stmt_select->fetch();
+        // Validate input
+        if (empty($input['user_name']) || strlen($input['user_name']) < 4) {
+            http_response_code(400);
+            echo json_encode([
+                "status" => "400",
+                "message" => "Invalid user_name"
+            ]);
+            return;
+        }
 
-            // USER_NAME Validation
-            if ($input['user_name'] == "") {
+        if (empty($input['user_email']) || strlen($input['user_email']) < 8) {
+            http_response_code(400);
+            echo json_encode([
+                "status" => "400",
+                "message" => "Invalid user_email"
+            ]);
+            return;
+        }
+
+        if (empty($input['user_password']) || strlen($input['user_password']) < 8) {
+            http_response_code(400);
+            echo json_encode([
+                "status" => "400",
+                "message" => "Invalid user_password"
+            ]);
+            return;
+        }
+
+        // If user exists, update them
+        if ($result_select) {
+            $current_password = $pdo->prepare('UPDATE USER SET user_name = :user_name, user_email = :user_email WHERE user_id = :user_id');
+            $current_password->bindParam(':user_name', $input['user_name']);
+            $current_password->bindParam(':user_email', $input['user_email']);
+            $current_password->bindParam(':user_id', $result_select['user_id']);
+            
+
+
+            $stmt_update = $pdo->prepare('UPDATE USER SET user_name = :user_name, user_email = :user_email WHERE user_id = :user_id');
+            $stmt_update->bindParam(':user_name', $input['user_name']);
+            $stmt_update->bindParam(':user_email', $input['user_email']);
+            $stmt_update->bindParam(':user_id', $result_select['user_id']);
+
+            if ($stmt_update->execute()) {
+                http_response_code(200);
                 echo json_encode([
-                    "status" => "error", 
-                    "message" => "No user_name inserted"
+                    "status" => "200",
+                    "message" => "User updated successfully"
                 ]);
-                $is_correct = false;
-            } else if (strlen($input['user_name']) < 4) {
-                echo json_encode([
-                    "status" => "error", 
-                    "message" => "Insufficient user_name length"
-                ]);
-                $is_correct = false;
-            } else if ($input['user_name'] == $result_select['user_name']) {
-                echo json_encode([
-                    "status" => "error", 
-                    "message" => "User_name already taken"
-                ]);
-                $is_correct = false;
+            } else {
+                http_response_code(500);
+                echo json_encode(["error" => "Failed to update user."]);
             }
+        } else {
+            // If user does not exist, insert a new user
+            $stmt_insert = $pdo->prepare('INSERT INTO USER (user_name, user_email, user_password) VALUES (:user_name, :user_email, :user_password)');
+            $stmt_insert->bindParam(':user_name', $input['user_name']);
+            $stmt_insert->bindParam(':user_email', $input['user_email']);
+            $stmt_insert->bindParam(':user_password', $hashed_password);
 
-            // USER_EMAIL Validation
-            if ($input['user_email'] == "") {
-                echo json_encode([
-                    "status" => "error", 
-                    "message" => "No user_email inserted"
-                ]);
-                $is_correct = false;
-            } else if (strlen($input['user_email']) < 8) {
-                echo json_encode([
-                    "status" => "error", 
-                    "message" => "Insufficient user_email length"
-                ]);
-                $is_correct = false;
-            } else if ($input['user_email'] == $result_select['user_email']) {
-                echo json_encode([
-                    "status" => "error", 
-                    "message" => "User_email already taken"
-                ]);
-                $is_correct = false;
-            }
-
-            // USER_PASSWORD Validation
-            if ($input['user_password'] == "") {
-                echo json_encode([
-                    "status" => "error", 
-                    "message" => "No user_password inserted"
-                ]);
-                $is_correct = false;
-            } else if (strlen($input['user_password']) < 8) {
-                echo json_encode([
-                    "status" => "error", 
-                    "message" => "Insufficient user_password length"
-                ]);
-                $is_correct = false;
-            }
-
-            if (!$is_correct) {
-                exit();
-            }
-
-            // INSERT Query
-            $stmt = $pdo->prepare('INSERT INTO USER (user_name, user_email, user_password) VALUES (:user_name, :user_email, :user_password)');
-            $stmt->bindParam(':user_name', $input['user_name']);
-            $stmt->bindParam(':user_email', $input['user_email']);
-            $stmt->bindParam(':user_password', $hashed_password);
-
-            if ($stmt->execute()) {
+            if ($stmt_insert->execute()) {
                 $newUserId = $pdo->lastInsertId();
-    
                 http_response_code(201);
                 header("Location: /users/$newUserId");
-                header("Content-Type: application/json");
-    
                 echo json_encode([
                     "user_id" => $newUserId,
                     "username" => $input['user_name'],
                     "email" => $input['user_email']
                 ]);
-                exit();
             } else {
                 http_response_code(500);
                 echo json_encode(["error" => "Failed to create user."]);
-                exit();
             }
-
-        } catch (PDOException $e) {
-            handlePDOException($e);
         }
-    } else {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Invalid data"
-        ]);
+    } catch (PDOException $e) {
+        handlePDOException($e);
     }
 }
+
 
 function handlePOSTRequest($pdo, $sessionMan, $endpoint) {
     try {

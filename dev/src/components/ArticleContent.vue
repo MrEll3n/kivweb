@@ -1,23 +1,7 @@
 <script setup lang="ts">
     import { useArticleStore } from "@/stores/article.store";
     import { useAuthStore } from "@/stores/auth.store";
-    // TODO: ts-ignore
-    //@ts-ignore
-
-    import { ref } from "vue";
-
-    import ChevronLeft from "@/assets/icons/chevron-left.vue";
-    import ChevronRight from "@/assets/icons/chevron-right.vue";
-    import ContentCard from "./ContentCard/ContentCard.vue";
-    import Input from "@/components/Inputs/Input.vue";
-    //@ts-ignore
-    import TextArea from "@/components/Inputs/TextArea.vue";
-    import SubmitInput from "@/components/Inputs/SubmitInput.vue";
     import type { Article } from "@/types";
-    
-
-    const authStore = useAuthStore();
-    const articleStore = useArticleStore();
 
     const props = defineProps<{
         article: Article;
