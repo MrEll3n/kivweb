@@ -32,7 +32,7 @@ export async function submitNewArticle(article_header: string, article_content: 
         formData.append('article_header', article_header); // Append the article header
         formData.append('article_content', article_content); // Append the article content
         formData.append('article_image', article_image); // Append the image file
-        console.log(article_image);
+        //console.log(article_image);
 
         const res = await axios.post(BASE_URL + '/article', formData, {
             headers: {

@@ -171,13 +171,13 @@ function handlePOSTRequest($pdo, $sessionMan, $endpoint) {
 
     $token = trimToken($_COOKIE['Authorization']);
     $currentUserID = $sessionMan->getUserId($token);
-
-    if (count($endpoint) == 1) {
-        createArticle($pdo, $currentUserID);
-    } elseif (count($endpoint) == 3 && $endpoint[2] == 'reviewed') {
+        
+    if (count($endpoint) == 3 && $endpoint[2] == 'reviewed') {
         updateArticleReviewed($pdo, $endpoint[1], $input['reviewed']);
     } elseif (count($endpoint) == 3 && $endpoint[2] == 'update') {
         updateArticle($pdo, $endpoint[1], $input['accepted']);
+    } else {    
+        createArticle($pdo, $currentUserID);
     }
 }
 
@@ -192,7 +192,16 @@ function createArticle($pdo, $currentUserID) {
     }
 
     $image_path = uploadImage('article_image');
-    echo $image_path;
+    
+    if ($image_path == null) {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "400",
+            "message" => "Image upload failed"
+        ]);
+        exit();
+    }
+
 
     try {
         $stmt = $pdo->prepare(
@@ -223,13 +232,17 @@ function createArticle($pdo, $currentUserID) {
 }
 
 function uploadImage($file_name) {
-    echo $_FILES[$file_name];
+    //echo $_FILES[$file_name];
     if (isset($_FILES[$file_name])) {
         $targetDir = dirname(__DIR__) . '/public/img/'; // Use absolute path
         $imageHash = uniqid();
         $imageExtension = strtolower(pathinfo($_FILES[$file_name]['name'], PATHINFO_EXTENSION));
         $targetFile = $targetDir . $imageHash . '.' . $imageExtension;
         $uploadOk = true;
+
+        echo $targetFile;
+        echo $imageExtension;
+        echo $targetDir;
 
         // Check if the file is an actual image
         $check = getimagesize($_FILES[$file_name]['tmp_name']);
@@ -245,7 +258,7 @@ function uploadImage($file_name) {
         }
 
         // Check file size (500KB limit)
-        if ($_FILES[$file_name]['size'] > 500000) {
+        if ($_FILES[$file_name]['size'] > 10000000) {
             echo 'File is too large.';
             $uploadOk = false;
         }
@@ -274,13 +287,17 @@ function uploadImage($file_name) {
                 return basename($targetFile);
             } else {
                 echo 'Failed to upload image.';
+                return null;
             }
         } else {
             echo 'File was not uploaded due to errors.';
+            return null;
         }
     } else {
         echo 'No image file uploaded.';
+        return null;
     }
+    echo 'Oh no...';
     return null;
 }
 
