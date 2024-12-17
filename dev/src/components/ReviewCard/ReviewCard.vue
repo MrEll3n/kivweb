@@ -4,7 +4,7 @@ import AccountIcon from "@/assets/icons/account-icon.vue";
 import clockIcon from "@/assets/icons/clock-icon.vue";
 import MonoButton from "@/components/Inputs/MonoButton.vue";
 import { defineComponent, onMounted, ref } from "vue";
-import { acceptReview, fetchImage, updateArticleReviewed } from "@/utils/rest-api";
+import { acceptReview, deleteArticle, deleteReview, fetchImage, updateArticleReviewed } from "@/utils/rest-api";
 import router from "@/router";
 
 export default defineComponent({
@@ -56,7 +56,15 @@ export default defineComponent({
             const result2 = await updateArticleReviewed(article_id, 0);
             // Handle the result as needed
             //console.log(result);
-            router.go(-1);
+            router.go(0);
+        }
+
+        async function eventDenyReview() {
+            const result1 = await deleteReview(review_id);
+            const result2 = await deleteArticle(article_id);
+            // Handle the result as needed
+            //console.log(result);
+            router.go(0);
         }
 
         const fetchWrapper = async () => {
@@ -87,6 +95,7 @@ export default defineComponent({
         // Return any reactive properties or methods you want to expose to the template
         return {
             eventAcceptReview,
+            eventDenyReview,
             image_src
         };
     },
@@ -129,7 +138,7 @@ export default defineComponent({
                     <div class="flex fled-row mx-2 gap-2 flex-wrap">
                         <RouterLink :to="`review/${article_id}`"><MonoButton class="z-50"> Preview </MonoButton></RouterLink>
                         <MonoButton @clicker="eventAcceptReview" class="z-50">Accept</MonoButton>
-                        <MonoButton @click.stop="" class="z-50">Deny</MonoButton>
+                        <MonoButton @clicker="eventDenyReview" class="z-50">Deny</MonoButton>
                     </div>
                 </div>
             </div>

@@ -17,6 +17,9 @@ switch ($requestMethod) {
     case 'POST':
         handlePOSTRequest($pdo, $sessionMan, $endpoint);
         break;
+    case 'DELETE':
+        handleDELETERequest($pdo, $sessionMan, $endpoint);
+        break;
     default:
         http_response_code(400);
         echo json_encode([
@@ -310,9 +313,75 @@ function handlePOSTRequest($pdo, $sessionMan, $endpoint) {
     }
 }
 
-
 function getUser($pdo, $review_id) {
     $stmt = $pdo->prepare("SELECT  FROM `REVIEW` WHERE review_id = :review_id"); 
     $stmt->execute(['review_id' => $review_id]);
     $result = $stmt->fetch();
+}
+
+function handleDELETERequest($pdo, $sessionMan, $endpoint) {
+    // DELETE method to remove a review from the database
+    if (count($endpoint) == 2) {
+        $review_id = $endpoint[1];
+
+        // Ensure the user is authenticated
+        if (!checkCookieToken()) {
+            http_response_code(401);
+            exit();
+        }
+
+        $token = trimToken($_COOKIE['Authorization']);
+        $currentUserID = $sessionMan->getUserId($token);
+
+        try {
+            // Get the user's permission level
+            $stmt = $pdo->prepare("SELECT PERMISSIONS.perm_weight FROM `USER` JOIN PERMISSIONS ON PERMISSIONS.perm_id = USER.perm_id WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $currentUserID]);
+            $user = $stmt->fetch();
+
+            // Check if the user is an admin (perm_id == 2) or the review creator
+            if ($user['perm_weight'] < 4) { // Not an admin
+                // Check if the review exists and is associated with the current user
+                $stmt = $pdo->prepare("SELECT user_id FROM `REVIEW` WHERE review_id = :review_id");
+                $stmt->execute(['review_id' => $review_id]);
+                $review = $stmt->fetch();
+
+                // If the review does not exist or the user is not the creator, return error
+                if (!$review || $review['user_id'] !== $currentUserID) {
+                    http_response_code(403);
+                    echo json_encode([
+                        "status" => "403",
+                        "message" => "Forbidden: You can only delete your own reviews."
+                    ]);
+                    exit();
+                }
+            }
+
+            // Proceed with deleting the review
+            $stmt = $pdo->prepare("DELETE FROM `REVIEW` WHERE review_id = :review_id");
+            $stmt->execute(['review_id' => $review_id]);
+
+            http_response_code(200);
+            echo json_encode([
+                "message" => "Review deleted successfully"
+            ]);
+            exit();
+
+        } catch (PDOException $e) {
+            http_response_code(400);
+            echo json_encode([
+                "status" => "400",
+                "message" => $e->getMessage()
+            ]);
+            exit();
+        }
+    } else {
+        // Return error if the ID is missing in the URL
+        http_response_code(400);
+        echo json_encode([
+            "status" => "400",
+            "message" => "Review ID is required for deletion"
+        ]);
+        exit();
+    }
 }

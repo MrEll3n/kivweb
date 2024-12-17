@@ -17,6 +17,9 @@ switch ($requestMethod) {
     case 'POST':
         handlePOSTRequest($pdo, $sessionMan, $endpoint);
         break;
+    case 'DELETE':
+        handleDELETERequest($pdo, $sessionMan, $endpoint);
+        break;
     default:
         http_response_code(400);
         echo json_encode([
@@ -336,6 +339,86 @@ function updateArticleReviewed($pdo, $articleId, $reviewed) {
             "message" => $e->getMessage()
         ]);
         exit();
+    }
+}
+
+function handleDELETERequest($pdo, $sessionMan, $endpoint) {
+    try {
+        if (count($endpoint) == 2) {
+            // Get the article ID from the endpoint
+            $articleId = $endpoint[1];
+            
+            // Check if the article exists
+            $stmt = $pdo->prepare("SELECT article_id FROM ARTICLE WHERE article_id = :id");
+            $stmt->bindParam(':id', $articleId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                // Article exists, proceed with deletion
+                deleteArticle($pdo, $articleId);
+            } else {
+                http_response_code(404);
+                echo json_encode([
+                    "status" => "404",
+                    "message" => "Article not found"
+                ]);
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode([
+                "status" => "400",
+                "message" => "Invalid endpoint"
+            ]);
+        }
+    } catch (PDOException $e) {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "400",
+            "message" => $e->getMessage()
+        ]);
+    }
+}
+
+function deleteArticle($pdo, $articleId) {
+    try {
+        // Begin transaction
+        $pdo->beginTransaction();
+
+        // Delete the article's associated image (optional but recommended)
+        $stmt = $pdo->prepare("SELECT article_image FROM ARTICLE WHERE article_id = :id");
+        $stmt->bindParam(':id', $articleId, PDO::PARAM_INT);
+        $stmt->execute();
+        $article = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($article && $article['article_image']) {
+            $imagePath = dirname(__DIR__) . '/public/img/' . $article['article_image'];
+            if (file_exists($imagePath)) {
+                unlink($imagePath); // Delete the image file
+            }
+        }
+
+        // Delete the article from the database
+        $stmt = $pdo->prepare("DELETE FROM ARTICLE WHERE article_id = :id");
+        $stmt->bindParam(':id', $articleId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Commit the transaction
+        $pdo->commit();
+
+        // Respond with success
+        http_response_code(200);
+        echo json_encode([
+            "message" => "Article deleted successfully"
+        ]);
+    } catch (PDOException $e) {
+        // Rollback in case of error
+        $pdo->rollBack();
+        
+        http_response_code(400);
+        echo json_encode([
+            "status" => "400",
+            "message" => $e->getMessage()
+        ]);
     }
 }
 

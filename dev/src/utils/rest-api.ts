@@ -562,6 +562,36 @@ export async function deleteUser(user_id: number): Promise<boolean> {
     return false;
 }
 
+export async function deleteArticle(article_id: number): Promise<boolean> {
+    try {
+        const res = await axios.delete(BASE_URL + '/article/' + article_id, {
+        });
+
+        if (res.status === 200) {
+            return true;
+        }
+    } catch (error) {
+        console.error("An error occurred while authenticating user:", error);
+        return false;
+    }
+    return false;
+}
+
+export async function deleteReview(review_id: number): Promise<boolean> {
+    try {
+        const res = await axios.delete(BASE_URL + '/review/' + review_id, {
+        });
+
+        if (res.status === 200) {
+            return true;
+        }
+    } catch (error) {
+        console.error("An error occurred while authenticating user:", error);
+        return false;
+    }
+    return false;
+}
+
 
 /*
 interface GetUserDataResponse {
