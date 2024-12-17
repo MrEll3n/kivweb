@@ -6,6 +6,7 @@
 		"src/stores/*.ts",
 		"srs/types/*.ts",
 		"src/**/*.vue", 
+		"typings.d.ts"
 	],
 	"exclude": [
 		"src/**/__tests__/*"

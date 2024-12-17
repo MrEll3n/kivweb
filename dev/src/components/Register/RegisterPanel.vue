@@ -1,60 +1,53 @@
 <script setup lang="ts">
+    import { ref } from "vue";
+    import axios from "axios";
+    import router from "@/router";
 
     import LoginPassInput from "@/components/Inputs/LoginPassInput.vue";
     import LoginSubmitInput from "@/components/Inputs/SubmitInput.vue";
     import LoginUserInput from "@/components/Inputs/LoginUserInput.vue";
     import LoginTextLogo from "@/assets/icons/LegoTextLogo.vue";
+    
 
-    import {ref} from "vue";
-    import axios from "axios";
-    import router from "@/router";
-
+    // Declare ref variables
     const user_name = ref("");
     const user_email = ref("");
     const user_password = ref("");
-    const urlBackend = "http://localhost:8080/kivweb/backend/api/index.php/register";
-
     const isBadLogin = ref(false);
     const isError = ref(false);
 
-    //let data = ref(null);
+    const urlBackend = "http://localhost:8080/kivweb/backend/api/index.php/users/";
 
-    function sendPostReq() {
-        //console.log([user_email.value, user_password.value])
-        
-        axios({
-            method: 'post',
-            url: urlBackend,
-            data: {
+    // Function to handle the PUT request
+    async function sendPostReq() {
+        try {
+            // Sending the PUT request
+            const response = await axios.put(urlBackend, {
                 user_name: user_name.value,
                 user_email: user_email.value,
                 user_password: user_password.value
-            }
-        }).then(response => {
-            //console.log(response.data);
-            //data.value = response.data
-            //console.log(response.status);
-            if (response.data.status == 401) { // wrong email or password
+            });
+
+            // Handling different status codes in the response
+            if (response.status === 201) { // Successful request
+                isBadLogin.value = false;
                 isError.value = false;
-                isBadLogin.value = true;
-                //console.log(response.data.status);
-            } else if (response.data.status == 400) { // something went wrong
+                router.push({ name: 'Login' });
+            } else if (response.status === 400) { // Bad request
                 isBadLogin.value = false;
                 isError.value = true;
-                //console.log(response.data.status);
-            } else if (response.data.status == 200) { // login successful
-                isBadLogin.value = false;
+            } else if (response.status === 401) { // Unauthorized (bad email/password)
                 isError.value = false;
-                //console.log(response.headers["authorization"]);
-            
-                router.push({name: 'Login'});
+                isBadLogin.value = true;
             }
-        }).catch(error => {
-            console.log(error);
+        } catch (error) {
+            // Catching errors in the request
+            console.error("Error during the request:", error);
             isBadLogin.value = false;
             isError.value = true;
-        });
+        }
     }
+
 </script>
 
 <template>
@@ -75,5 +68,4 @@
 </template>
 
 <style scoped>
-
 </style>
