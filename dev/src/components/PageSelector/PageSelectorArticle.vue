@@ -6,7 +6,7 @@ import { getAcceptedArticles } from "@/utils/rest-api";
 import router from "@/router";
 import { type Article } from "@/types";
 import { useRoute } from "vue-router";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps<{
     link: string
@@ -16,10 +16,13 @@ const articleStore = useArticleStore();
 const route = useRoute();
 
 const qPage = computed(() => Number(route.query.page) || 1);
+const currentCount = ref<number>(0);
+currentCount.value = (await getAcceptedArticles(true, articleStore.page))?.length || 0;
 
 async function nextPage() {
-    const currentCount = (await getAcceptedArticles(true, articleStore.page))?.length || 0;
-    if (currentCount <= articleStore.numberOfContentInPage) {
+    currentCount.value = (await getAcceptedArticles(true, articleStore.page))?.length || 0;
+    console.log(currentCount)
+    if (currentCount.value == articleStore.numberOfContentInPage) {
         articleStore.page = qPage.value + 1;
         await navigateToPage();
     }
@@ -35,6 +38,7 @@ async function previousPage() {
 async function navigateToPage() {
     articleStore.articles = await getAcceptedArticles(true, articleStore.page) as Article[] | null;
     router.push({ path: props.link, query: { page: articleStore.page.toString() } });
+    currentCount.value = (await getAcceptedArticles(true, articleStore.page))?.length || 0;
 }
 
 const count = computed(() => articleStore.articles?.length ?? 0);

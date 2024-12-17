@@ -3,7 +3,7 @@ export interface UserData {
     user_name: string,
     user_email: string
     perm_id: number,
-    //perm_name: string,
+    perm_name: string,
     //perm_weight: number
 }
 

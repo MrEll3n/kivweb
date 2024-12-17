@@ -162,10 +162,15 @@ router.beforeEach(async (to, from, next) => {
         
         
         // If the user is not allowed to access the route, redirect to the home page
-        if (useAuthStore().getDisallowedRoutes.includes(to.name as string)) {
-            router.go(-1);
-            return;
-        }
+        const DisallowedRoutes = useAuthStore().getDisallowedRoutes
+        
+        if (DisallowedRoutes != null) {
+            if (useAuthStore().getDisallowedRoutes.includes(to.name as string)) {
+                router.go(-1);
+                return;
+            }
+        } 
+
 
         // Getting the number of articles
         //const articles = await getAcceptedArticles(true, useArticleStore().page);

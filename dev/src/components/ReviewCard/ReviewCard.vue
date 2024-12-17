@@ -66,13 +66,13 @@ export default defineComponent({
                     const response = await fetchImage(props.article_image);
                     if (response) {
                         image_src.value = response as string;
-                        console.log(image_src.value);
+                        //console.log(image_src.value);
                     } else {
                         throw new Error('No response from fetchImage');
                     }
                 } else {
                     image_src.value = "./../../assets/images/news-holder.jpg";
-                    console.log('Using default image');
+                    //console.log('Using default image');
                 }
             } catch (error) {
                 console.error('Error fetching image:', error);

@@ -20,7 +20,10 @@ switch ($requestMethod) {
         break; 
     case 'POST':
         handlePOSTRequest($pdo, $sessionMan, $endpoint);
-        break;  
+        break;
+    case 'DELETE':
+        handleDELETERequest($pdo, $sessionMan, $endpoint);
+        break;
     default:
         http_response_code(400);
         echo json_encode([
@@ -269,6 +272,29 @@ function handlePOSTRequest($pdo, $sessionMan, $endpoint) {
         
     } catch (PDOException $e) {
         handlePDOException($e);
+    }
+}
+
+function handleDELETERequest($pdo, $sessionMan, $endpoint) {
+    if (count($endpoint) == 2) {
+        $user_id = $endpoint[1];
+        try {
+            $stmt = $pdo->prepare("DELETE FROM `USER` WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $user_id]);
+            http_response_code(200);
+            echo json_encode([
+                "status" => "200",
+                "message" => "User deleted successfully"
+            ]);
+        } catch (PDOException $e) {
+            handlePDOException($e);
+        }
+    } else {
+        http_response_code(400);
+        echo json_encode([
+            "status" => "400",
+            "message" => "Invalid endpoint"
+        ]);
     }
 }
 

@@ -513,6 +513,55 @@ export async function fetchImage(image_name: string): Promise<string> {
     return '';
 }
 
+export async function getAllUsers(): Promise<UserData[] | null> {
+    try {
+        const res = await axios.get(BASE_URL + '/users', {
+
+        });
+
+        if (res.status === 200) {
+            //authStore.isUserLogged = true;
+            return res.data;
+        }      
+    } catch (error) {
+        console.log("An error occurred while loading articles:", error);
+        return null;
+    }
+    return null;
+}
+
+export async function getAllPerms(): Promise<Perm[] | null> {
+    try {
+        const res = await axios.get(BASE_URL + '/perms', {
+
+        });
+
+        if (res.status === 200) {
+            //authStore.isUserLogged = true;
+            return res.data;
+        }      
+    } catch (error) {
+        console.log("An error occurred while loading articles:", error);
+        return null;
+    }
+    return null;
+}
+
+export async function deleteUser(user_id: number): Promise<boolean> {
+    try {
+        const res = await axios.delete(BASE_URL + '/users/' + user_id, {
+        });
+
+        if (res.status === 200) {
+            return true;
+        }
+    } catch (error) {
+        console.error("An error occurred while authenticating user:", error);
+        return false;
+    }
+    return false;
+}
+
 
 /*
 interface GetUserDataResponse {
