@@ -36,7 +36,7 @@ function handleGETRequest($pdo, $sessionMan, $endpoint) {
         try {
             // If there are no query parameters
             if (!isset($_GET['page']) && !isset($_GET['size']) && !isset($_GET['attr'])) {
-                $result = $pdo->query("SELECT user_id, user_name, user_email FROM `USER`")->fetchAll(PDO::FETCH_ASSOC);
+                $result = $pdo->query("SELECT user_id, user_name, user_email, perm_id FROM `USER`")->fetchAll(PDO::FETCH_ASSOC);
                 http_response_code(200);
                 echo json_encode($result);
                 exit();
