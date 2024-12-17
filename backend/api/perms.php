@@ -34,7 +34,7 @@ function handleGETRequest($pdo, $sessionMan, $endpoint) {
             if (!isset($_GET['page']) && !isset($_GET['size'])) {
                 $result = $pdo->query("SELECT perm_id, perm_name, perm_weight, disallowed_routes FROM `PERMISSIONS`")->fetchAll();
                 http_response_code(200);
-                echo json_encode(["data" => $result]);
+                echo json_encode($result);
                 exit();
             }
 
@@ -46,7 +46,7 @@ function handleGETRequest($pdo, $sessionMan, $endpoint) {
                 $stmt->execute(['PAGE' => $PAGE, 'PAGE_OFFSET' => ($PAGE - 1)*$SIZE]);
                 $result = $stmt->fetchAll();
                 http_response_code(200);
-                echo json_encode(["data" => $result]);
+                echo json_encode($result);
                 exit();
             }
 
